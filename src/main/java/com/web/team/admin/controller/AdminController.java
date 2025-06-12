@@ -3,12 +3,15 @@ package com.web.team.admin.controller;
 import com.web.team.admin.dto.AdminLoginRequest;
 import com.web.team.admin.dto.AdminRegisterRequest;
 import com.web.team.admin.service.AdminService;
+import com.web.team.jwt.CustomAdminDetails;
+import com.web.team.jwt.CustomUserDetails;
 import com.web.team.user.dto.UserRegisterRequest;
 import com.web.team.user.dto.UserUpdateRequest;
 import com.web.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -41,9 +44,9 @@ public class AdminController {
     }
 
     // 직원 정보 수정
-    @PatchMapping("/user/{userId}")
-    public ResponseEntity<String> userUpdate(@PathVariable Long userId, @RequestBody UserUpdateRequest request) {
-        adminService.userUpdate(userId, request);
+    @PatchMapping("/user/update")
+    public ResponseEntity<String> userUpdate(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UserUpdateRequest request) {
+        adminService.userUpdate(userDetails.getUserId(), request);
         return ResponseEntity.ok("정보 수정 완료");
     }
 
