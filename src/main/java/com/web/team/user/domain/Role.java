@@ -1,4 +1,4 @@
-package com.web.team.domain;
+package com.web.team.user.domain;
 
 public enum Role {
 

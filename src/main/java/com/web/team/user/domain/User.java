@@ -1,4 +1,4 @@
-package com.web.team.domain;
+package com.web.team.user.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "users")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,12 +36,31 @@ public class User {
     private boolean isActive; // 계정 활성화/비활성화
 
     // 관리자의 직원 등록
-    // 관리자의 직원 계정 활성화/비활성화 변경
-    // 관리자의 직급 변경 (ON/OFF)
-    // 관리자의 직원 조회 (비활성화한 계정은 보이지 않게)
+    public static User create(String email, String password, String name, Position position) {
+        User user = new User();
+        user.email = email;
+        user.password = password;
+        user.role = Role.USER;
+        user.position = position;
+        user.name = name;
+        user.isActive = true; // 기본 계정 활성화 상태 유지
+        return user;
+    }
+
+    // 관리자의 직원 정보 수정
+    public void updateUser(String name, Position position, Boolean isActive) {
+        if (name != null && !name.isBlank()) this.name = name;
+        if (position != null) this.position = position;
+        if (isActive != null) this.isActive = isActive;
+    }
 
     // 직원의 본인 비밀번호 변경
-    // 직원의 본인 정보 조회
+    public void changePassword(String password) {
+        this.password = password;
+    }
+
+
+
 
 
 
