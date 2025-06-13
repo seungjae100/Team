@@ -8,5 +8,4 @@ public interface UserRepositoryCustom {
 
     Optional<User> findActiveUserByEmail(String email);
 
-    Optional<User> findAnyUserByEmail(String email);
 }

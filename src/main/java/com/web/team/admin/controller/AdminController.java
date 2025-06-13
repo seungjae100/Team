@@ -1,13 +1,14 @@
 package com.web.team.admin.controller;
 
 import com.web.team.admin.dto.AdminLoginRequest;
+import com.web.team.admin.dto.AdminLoginResponse;
 import com.web.team.admin.dto.AdminRegisterRequest;
 import com.web.team.admin.service.AdminService;
 import com.web.team.jwt.CustomAdminDetails;
 import com.web.team.jwt.CustomUserDetails;
+import com.web.team.jwt.TokenService;
 import com.web.team.user.dto.UserRegisterRequest;
 import com.web.team.user.dto.UserUpdateRequest;
-import com.web.team.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +31,16 @@ public class AdminController {
 
     // 관리자 계정 로그인
     @PostMapping("/login")
-    public ResponseEntity<String> adminLogin(@RequestBody AdminLoginRequest request) {
-        adminService.adminLogin(request);
-        return ResponseEntity.ok("로그인이 완료되었습니다.");
+    public ResponseEntity<AdminLoginResponse> adminLogin(@RequestBody AdminLoginRequest request) {
+        AdminLoginResponse response = adminService.adminLogin(request);
+        return ResponseEntity.ok(response);
+    }
+
+    // 관리자 계정 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<String> adminLogout(@AuthenticationPrincipal CustomAdminDetails adminDetails) {
+        adminService.adminLogout(adminDetails);
+        return ResponseEntity.ok("로그아웃이 완료되었습니다.");
     }
 
 

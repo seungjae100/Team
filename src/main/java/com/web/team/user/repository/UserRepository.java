@@ -7,4 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
 
+    // 중복된 이메일이 있는지 확인
+    boolean existsByEmail(String email);
+
 }

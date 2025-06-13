@@ -5,6 +5,7 @@ import com.web.team.admin.dto.AdminLoginRequest;
 import com.web.team.admin.dto.AdminLoginResponse;
 import com.web.team.admin.dto.AdminRegisterRequest;
 import com.web.team.admin.repository.AdminRepository;
+import com.web.team.jwt.CustomAdminDetails;
 import com.web.team.jwt.JwtTokenProvider;
 import com.web.team.jwt.TokenService;
 import com.web.team.user.domain.User;
@@ -72,16 +73,22 @@ public class AdminService {
         return admin;
     }
 
+    // 관리자 로그아웃
+    @Transactional
+    public void adminLogout(CustomAdminDetails adminDetails) {
+        Long adminId = adminDetails.getAdminId();
+        tokenService.deletedRefreshToken(adminId);
+    }
+
 
     // 직원 계정 회원가입
     @Transactional
     public void userRegister(UserRegisterRequest request) {
 
         // 활성화/비활성화를 모두 포함하여 이메일 중복 체크
-        userRepository.findAnyUserByEmail(request.getEmail())
-                .ifPresent(user -> {
-                    throw new RuntimeException("이미 사용 중인 이메일입니다.");
-                });
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("이미 사용 중인 이메일입니다.");
+        }
 
         User user = User.create(
                 request.getEmail(),

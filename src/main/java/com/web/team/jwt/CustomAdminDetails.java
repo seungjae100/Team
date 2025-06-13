@@ -14,6 +14,10 @@ public class CustomAdminDetails implements UserDetails {
 
     private final Admin admin;
 
+    public Long getAdminId() {
+        return admin.getId();
+    }
+
     @Override
     public boolean isEnabled() {
         return true;

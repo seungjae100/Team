@@ -1,9 +1,6 @@
 package com.web.team.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,13 +11,13 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret")
+    @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.access-token-time")
+    @Value("${jwt.access-token-time}")
     private long accessTokenTime;
 
-    @Value("${jwt.refresh-token-time")
+    @Value("${jwt.refresh-token-time}")
     private long refreshTokenTime;
 
     @PostConstruct
@@ -56,7 +53,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 토큰의 유효성에 대한 확인
+    // 토큰의 유효성에 대한 확인 ( 서명, 구조, 만료 포함)
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJwt(token);
@@ -66,8 +63,31 @@ public class JwtTokenProvider {
         }
     }
 
-    //
+    // 토큰의 유효성 만료만 따로
+    public boolean isExpired(String token) {
+        try {
+            Date expiration = getClaims(token).getExpiration();
+            return expiration.before(new Date());
+        } catch (ExpiredJwtException e){
+            return true; // 만료 인정
+        }
+    }
+
+    // 토큰에서 userId 추출 (Subject)
+    public Long getUserId(String token) {
+        return Long.parseLong(getClaims(token).getSubject());
+    }
+
+    // 토큰에서 role 추출
+    public String getRole(String token) {
+        return getClaims(token).get("role", String.class);
+    }
+
+    // 내부 Claims 추출 유틸
     public Claims getClaims(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJwt(token).getBody();
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
