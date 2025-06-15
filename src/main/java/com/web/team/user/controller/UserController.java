@@ -1,6 +1,7 @@
 package com.web.team.user.controller;
 
 import com.web.team.jwt.CustomUserDetails;
+import com.web.team.jwt.TokenExtractor;
 import com.web.team.user.dto.AccessTokenResponse;
 import com.web.team.user.dto.PasswordChangeRequest;
 import com.web.team.user.dto.UserLoginRequest;
@@ -9,7 +10,6 @@ import com.web.team.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final TokenExtractor tokenExtractor;
 
     // 직원 계정 로그인
     @PostMapping("/login")
@@ -45,7 +46,7 @@ public class UserController {
     @PostMapping("/reAccessToken")
     public ResponseEntity<AccessTokenResponse> reAccessToken(HttpServletRequest request) {
         // 1. 요청 헤더에서 만료된 AccessToken 추출
-        String expiredAccessToken = extractAccessTokenFromHeader(request);
+        String expiredAccessToken = tokenExtractor.extractAccessTokenFromHeader(request);
 
         // 2. UserService 에서 재발급 처리 요청 -> 새 AccessToken 반환
         String newAccessToken = userService.reAccessToken(expiredAccessToken);
@@ -54,12 +55,4 @@ public class UserController {
         return ResponseEntity.ok(new AccessTokenResponse(newAccessToken));
     }
 
-    // 헤더에서 Bearer AccessToken만 추출
-    private String extractAccessTokenFromHeader(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
-            throw new AccessDeniedException("Authorization 헤더가 존재하지 않습니다.");
-        }
-        return header.substring(7); // "Bearer " 제거
-    }
 }

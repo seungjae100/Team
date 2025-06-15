@@ -6,9 +6,12 @@ import com.web.team.admin.dto.AdminRegisterRequest;
 import com.web.team.admin.service.AdminService;
 import com.web.team.jwt.CustomAdminDetails;
 import com.web.team.jwt.CustomUserDetails;
+import com.web.team.jwt.TokenExtractor;
 import com.web.team.jwt.TokenService;
+import com.web.team.user.dto.AccessTokenResponse;
 import com.web.team.user.dto.UserRegisterRequest;
 import com.web.team.user.dto.UserUpdateRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final AdminService adminService;
+    private final TokenExtractor tokenExtractor;
 
     // 관리자 계정 회원가입
     @PostMapping("/register")
@@ -41,6 +45,19 @@ public class AdminController {
     public ResponseEntity<String> adminLogout(@AuthenticationPrincipal CustomAdminDetails adminDetails) {
         adminService.adminLogout(adminDetails);
         return ResponseEntity.ok("로그아웃이 완료되었습니다.");
+    }
+
+    // 관리자 계정 AccessToken 토큰 재발급
+    @PostMapping("/reAccessToken")
+    public ResponseEntity<AccessTokenResponse> reAccessToken(HttpServletRequest request) {
+        // 1. 요청 헤더에서 만료된 AccessToken을 추출
+        String expiredAccessToken = tokenExtractor.extractAccessTokenFromHeader(request);
+
+        // 2. AdminService 에서 재발급 처리 요청
+        String newAccessToken = adminService.reAccessToken(expiredAccessToken);
+
+        // 3. 응답 바디에 새 토큰을 담아서 클라이언트에 전달
+        return ResponseEntity.ok(new AccessTokenResponse(newAccessToken));
     }
 
 

@@ -74,7 +74,7 @@ class UserServiceSuccessTest {
 
     @Test
     @DisplayName("changePassword() 성공 - 비밀번호 변경 완료")
-    void changePassword_Success() {
+    void changePassword_success() {
         // given
         Long userId = 1L;
         PasswordChangeRequest request = new PasswordChangeRequest("newPassword");
@@ -92,7 +92,7 @@ class UserServiceSuccessTest {
 
     @Test
     @DisplayName("로그아웃 성공")
-    void userLogout_Success() {
+    void userLogout_success() {
         // given
         Long userId = 1L;
         CustomUserDetails userDetails = mock(CustomUserDetails.class);
@@ -103,6 +103,40 @@ class UserServiceSuccessTest {
 
         // then
         verify(tokenService).deletedRefreshToken(userId);
+    }
+
+    @Test
+    @DisplayName("AccessToken 재발급 성공")
+    void reAccessToken_success() {
+        // given
+        String expiredToken = "expired-token";
+        String newAccessToken = "new-access-token";
+
+        when(tokenService.reAccessToken(expiredToken)).thenReturn(newAccessToken);
+
+        // when
+        String result = userService.reAccessToken(expiredToken);
+
+        // then
+        assertEquals(newAccessToken, result);
+        verify(tokenService).reAccessToken(expiredToken); // TokenService 호출 여부
+    }
+
+    @Test
+    @DisplayName("AccessToken 재발급 - UserService 성공 테스트")
+    void reAccessToken_success2() {
+        // given
+        String expiredToken = "expired-token"; // 발급되었던 키 유효시간이 만료된
+        String expectedNewToken = "new-access-token"; // 새로 발급되는 access-token
+
+        when(tokenService.reAccessToken(expiredToken)).thenReturn(expectedNewToken);
+
+        // when
+        String result = userService.reAccessToken(expiredToken);
+
+        // then
+        assertEquals(expectedNewToken, result);
+        verify(tokenService).reAccessToken(expiredToken); // TokenService의 호출여부의 확인
     }
 
 

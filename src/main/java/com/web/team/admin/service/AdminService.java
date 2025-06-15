@@ -80,6 +80,12 @@ public class AdminService {
         tokenService.deletedRefreshToken(adminId);
     }
 
+    // 관리자 AccessToken 재발급
+    @Transactional
+    public String reAccessToken(String expiredAccessToken) {
+        return tokenService.reAccessToken(expiredAccessToken);
+    }
+
 
     // 직원 계정 회원가입
     @Transactional
