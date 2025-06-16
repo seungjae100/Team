@@ -26,7 +26,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/user/register", "/api/user/login").permitAll()
+                        // ALL
+                        .requestMatchers("/api/user/register", "/api/user/login").permitAll()
+                        // 사원 (ROLE_USER)
+                        .requestMatchers("/api/user/**").hasRole("USER")
+                        // 관리자 (ROLE_ADMIN)
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/user/**").hasRole("ADMIN")
+
                     .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
