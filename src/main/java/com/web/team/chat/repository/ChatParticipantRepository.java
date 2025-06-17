@@ -9,4 +9,6 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
 
     // 채팅방에 참여한 사용자들을 찾는 메서드
     Optional<ChatParticipant> findByRoomIdAndUserId(Long roomId, Long userId);
+
+    void deleteByRoomId(Long roomId);
 }

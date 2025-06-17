@@ -1,0 +1,68 @@
+package com.web.team.chat.service;
+
+import com.web.team.chat.domain.ChatMessage;
+import com.web.team.chat.dto.ChatMessageRequest;
+import com.web.team.chat.dto.ChatMessageResponse;
+import com.web.team.chat.repository.ChatMessageRepository;
+import com.web.team.jwt.CustomUserDetails;
+import com.web.team.user.domain.User;
+import com.web.team.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class ChatMessageService {
+
+    private final ChatMessageRepository chatMessageRepository;
+    private final UserRepository userRepository;
+
+    /**
+     * 채팅 메세지 저장
+     */
+    @Transactional
+    public ChatMessageResponse sendMessage(ChatMessageRequest request, CustomUserDetails userDetails) {
+        // 사용자의 user_id 값을 가져온다.
+        Long userId = userDetails.getUserId();
+
+        // 사용자를 데이터베이스에 있는지 조회한다.
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 메세지 생성 및 저장 (ChatMessage 엔티티 메서드 매개변수 순서)
+        ChatMessage chatMessage = ChatMessage.create(
+                request.getRoomId(),
+                userId,
+                user.getName(),
+                request.getMessage()
+        );
+
+        ChatMessage saved = chatMessageRepository.save(chatMessage);
+        return ChatMessageResponse.from(saved);
+    }
+
+    /**
+     * 특정 채팅방의 모든 메세지 조회
+     */
+    @Transactional
+    public List<ChatMessageResponse> getMessageByRoomId(Long roomId) {
+        return chatMessageRepository.findByRoomIdOrderBySentAtAsc(roomId)
+                .stream()
+                .map(ChatMessageResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 채팅방 삭제 시 메세지도 삭제
+     */
+    @Transactional
+    public void deletedMessageByRoomId(Long roomId) {
+        chatMessageRepository.deleteByRoomId(roomId);
+    }
+
+
+}
