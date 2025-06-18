@@ -2,6 +2,8 @@ package com.web.team.chat.service;
 
 import com.web.team.chat.domain.ChatParticipant;
 import com.web.team.chat.domain.ChatRoom;
+import com.web.team.chat.domain.RoomType;
+import com.web.team.chat.dto.ChatRoomResponse;
 import com.web.team.chat.repository.ChatMessageRepository;
 import com.web.team.chat.repository.ChatParticipantRepository;
 import com.web.team.chat.repository.ChatRoomRepository;
@@ -10,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService {
@@ -17,6 +22,44 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatParticipantRepository chatParticipantRepository;
     private final ChatMessageRepository chatMessageRepository;
+
+    // 1:1 채팅방 생성하기
+    @Transactional
+    public ChatRoomResponse createDirectChatRoom(Long anotherId, CustomUserDetails userDetails) {
+        Long currentUserId = userDetails.getUserId();
+
+        // 1. 두 유저가 참여한 DIRECT 채팅방에 있는지 확인
+        Optional<ChatRoom> existingRoom = chatRoomRepository.findByDirectRoomByUsers(currentUserId, anotherId);
+
+        if (existingRoom.isPresent()) {
+            return ChatRoomResponse.of(existingRoom.get().getId(), existingRoom.get().getName(), existingRoom.get().getRoomType().name());
+        }
+
+        // 2. 없다면 생성
+        ChatRoom room = ChatRoom.create("1:1 채팅", RoomType.DIRECT);
+        chatRoomRepository.save(room);
+
+        // 3. 두 사용자 모두 참여자 등록
+        chatParticipantRepository.save(ChatParticipant.enter(room.getId(), currentUserId));
+        chatParticipantRepository.save(ChatParticipant.enter(room.getId(), anotherId));
+
+        return ChatRoomResponse.of(room.getId(), room.getName(), room.getRoomType().name());
+    }
+
+    // 그룹 채팅방 생성하기
+    @Transactional
+    public ChatRoom createGroupChatRoom(String name, List<Long> userIds) {
+        ChatRoom room = ChatRoom.create(name, RoomType.GROUP);
+        ChatRoom savedRoom = chatRoomRepository.save(room);
+
+        for (Long userId : userIds) {
+            ChatParticipant participant = ChatParticipant.enter(savedRoom.getId(), userId);
+            chatParticipantRepository.save(participant);
+            savedRoom.increaseUserCount();
+        }
+
+        return savedRoom;
+    }
 
 
     // 채팅방 입장
