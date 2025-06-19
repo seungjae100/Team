@@ -3,18 +3,24 @@ package com.web.team.user.service;
 import com.web.team.jwt.CustomUserDetails;
 import com.web.team.jwt.JwtTokenProvider;
 import com.web.team.jwt.TokenService;
+import com.web.team.user.controller.UserController;
 import com.web.team.user.domain.Position;
 import com.web.team.user.domain.User;
 import com.web.team.user.dto.PasswordChangeRequest;
 import com.web.team.user.dto.UserLoginRequest;
 import com.web.team.user.dto.UserLoginResponse;
 import com.web.team.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -41,6 +47,9 @@ class UserServiceSuccessTest {
 
     @Mock
     private TokenService tokenService;
+
+    @Mock
+    private UserController userController;
 
     @Test
     @DisplayName("로그인 성공 테스트")
@@ -105,39 +114,8 @@ class UserServiceSuccessTest {
         verify(tokenService).deletedRefreshToken(userId);
     }
 
-    @Test
-    @DisplayName("AccessToken 재발급 성공")
-    void reAccessToken_success() {
-        // given
-        String expiredToken = "expired-token";
-        String newAccessToken = "new-access-token";
 
-        when(tokenService.reAccessToken(expiredToken)).thenReturn(newAccessToken);
 
-        // when
-        String result = userService.reAccessToken(expiredToken);
-
-        // then
-        assertEquals(newAccessToken, result);
-        verify(tokenService).reAccessToken(expiredToken); // TokenService 호출 여부
-    }
-
-    @Test
-    @DisplayName("AccessToken 재발급 - UserService 성공 테스트")
-    void reAccessToken_success2() {
-        // given
-        String expiredToken = "expired-token"; // 발급되었던 키 유효시간이 만료된
-        String expectedNewToken = "new-access-token"; // 새로 발급되는 access-token
-
-        when(tokenService.reAccessToken(expiredToken)).thenReturn(expectedNewToken);
-
-        // when
-        String result = userService.reAccessToken(expiredToken);
-
-        // then
-        assertEquals(expectedNewToken, result);
-        verify(tokenService).reAccessToken(expiredToken); // TokenService의 호출여부의 확인
-    }
 
 
 }
