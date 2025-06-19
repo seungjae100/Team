@@ -26,10 +26,10 @@ public class ChatRoomService {
     // 1:1 채팅방 생성하기
     @Transactional
     public ChatRoomResponse createDirectChatRoom(Long anotherId, CustomUserDetails userDetails) {
-        Long currentUserId = userDetails.getUserId();
+        Long currentId = userDetails.getUserId();
 
         // 1. 두 유저가 참여한 DIRECT 채팅방에 있는지 확인
-        Optional<ChatRoom> existingRoom = chatRoomRepository.findByDirectRoomByUsers(currentUserId, anotherId);
+        Optional<ChatRoom> existingRoom = chatRoomRepository.findByDirectRoomByUsers(currentId, anotherId);
 
         if (existingRoom.isPresent()) {
             return ChatRoomResponse.of(existingRoom.get().getId(), existingRoom.get().getName(), existingRoom.get().getRoomType().name());
@@ -40,7 +40,7 @@ public class ChatRoomService {
         chatRoomRepository.save(room);
 
         // 3. 두 사용자 모두 참여자 등록
-        chatParticipantRepository.save(ChatParticipant.enter(room.getId(), currentUserId));
+        chatParticipantRepository.save(ChatParticipant.enter(room.getId(), currentId));
         chatParticipantRepository.save(ChatParticipant.enter(room.getId(), anotherId));
 
         return ChatRoomResponse.of(room.getId(), room.getName(), room.getRoomType().name());
@@ -49,9 +49,18 @@ public class ChatRoomService {
     // 그룹 채팅방 생성하기
     @Transactional
     public ChatRoom createGroupChatRoom(String name, List<Long> userIds) {
+        // 그룹채팅을 위해서 사용자를 추가하는 상황인데 한 명도 체크하지 않고 채팅방 생성을 하려할 때의 예외처리
+        if (userIds == null || userIds.isEmpty()) {
+            throw new IllegalArgumentException("참여자는 한 명 이상이여야 합니다.");
+        }
+        // 채팅방 생성 (이름 , 그룹채팅타입)
+        // 데이터베이스에 생성된 채팅방 정보 저장
         ChatRoom room = ChatRoom.create(name, RoomType.GROUP);
         ChatRoom savedRoom = chatRoomRepository.save(room);
 
+        // 타입은 userId , 반복한다. 참여자 엔티티에서 데이터베이스에 저장된 채팅방의 아이디, 참여자 아이디
+        // 참여자 정보를 저장한다.
+        // 데이터베이스에 저장된 참여자 인원 수를 늘린다.
         for (Long userId : userIds) {
             ChatParticipant participant = ChatParticipant.enter(savedRoom.getId(), userId);
             chatParticipantRepository.save(participant);
