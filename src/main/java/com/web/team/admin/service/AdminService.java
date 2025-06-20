@@ -12,6 +12,7 @@ import com.web.team.user.domain.User;
 import com.web.team.user.dto.UserRegisterRequest;
 import com.web.team.user.dto.UserUpdateRequest;
 import com.web.team.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -82,8 +83,8 @@ public class AdminService {
 
     // 관리자 AccessToken 재발급
     @Transactional
-    public String reAccessToken(String expiredAccessToken) {
-        return tokenService.reAccessToken(expiredAccessToken);
+    public void reAccessToken(HttpServletResponse response, String expiredAccessToken) {
+        tokenService.reAccessToken(response, expiredAccessToken);
     }
 
 

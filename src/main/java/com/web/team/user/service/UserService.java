@@ -6,6 +6,7 @@ import com.web.team.user.dto.*;
 import com.web.team.jwt.JwtTokenProvider;
 import com.web.team.jwt.TokenService;
 import com.web.team.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -69,8 +70,8 @@ public class UserService {
     }
 
     // 직원 AccessToken 재발급
-    public String reAccessToken(String expiredAccessToken) {
-        return tokenService.reAccessToken(expiredAccessToken);
+    public void reAccessToken(HttpServletResponse response, String expiredAccessToken) {
+        tokenService.reAccessToken(response, expiredAccessToken);
     }
 
 

@@ -1,5 +1,6 @@
 package com.web.team.jwt;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class TokenService {
 
     // 직원의 reAccessToken 발급
     @Transactional
-    public String reAccessToken(String expiredAccessToken) {
+    public void reAccessToken(HttpServletResponse response, String expiredAccessToken) {
         // 1. AccessToken이 만료된건지 확인
         if (!jwtTokenProvider.isExpired(expiredAccessToken)) {
             throw new RuntimeException("AccessToken이 아직 만료되지 않았습니다.");
@@ -50,8 +51,12 @@ public class TokenService {
             throw new RuntimeException("RefreshToken이 존재하지 않습니다. 다시 로그인하세요");
         }
 
-        // 4. 새 AccessToken 발급 -> 클라이언트에 반환
+        // 4. 새 AccessToken 발급 및 쿠키로 전환
         String role = jwtTokenProvider.getRole(expiredAccessToken);
-        return jwtTokenProvider.createAccessToken(userId, role);
+        String newAccessToken = jwtTokenProvider.createAccessToken(userId, role);
+
+        // 쿠키로 응답에 심기
+        CookieUtils.setCookie(response, "accessToken", newAccessToken, 60 * 30);
+
     }
 }
