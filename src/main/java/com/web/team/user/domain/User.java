@@ -1,9 +1,14 @@
 package com.web.team.user.domain;
 
+import com.web.team.chat.domain.ChatMessage;
+import com.web.team.chat.domain.ChatParticipant;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -34,6 +39,23 @@ public class User {
 
     @Column(nullable = false)
     private boolean isActive; // 계정 활성화/비활성화
+
+    // 연관관계
+    @OneToMany(mappedBy = "user")
+    private List<ChatParticipant> chatParticipants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender")
+    private List<ChatMessage> chatMessages = new ArrayList<>();
+
+    public void addParticipant(ChatParticipant chatParticipant) {
+        this.chatParticipants.add(chatParticipant);
+        chatParticipant.assignUser(this); // 양방향 동기화
+    }
+
+    public void addMessage(ChatMessage message) {
+        this.chatMessages.add(message);
+        message.assignSender(this);
+    }
 
     // 관리자의 직원 등록
     public static User create(String email, String password, String name, Position position) {

@@ -5,6 +5,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,6 +22,24 @@ public class ChatRoom {
     private RoomType roomType;
 
     private int userCount;
+
+    // 연관관계
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatParticipant> participants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatMessage> messages = new ArrayList<>();
+
+    public void addParticipant(ChatParticipant participant) {
+        this.participants.add(participant);
+        participant.assignChatRoom(this);
+    }
+
+    public void addMessage(ChatMessage message) {
+        this.messages.add(message);
+        message.assignChatRoom(this);
+    }
+
 
     public static ChatRoom create(String name, RoomType roomType) {
         ChatRoom chatRoom = new ChatRoom();

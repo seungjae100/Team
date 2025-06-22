@@ -4,16 +4,20 @@ import com.web.team.chat.domain.ChatParticipant;
 import com.web.team.chat.domain.ChatRoom;
 import com.web.team.chat.domain.RoomType;
 import com.web.team.chat.dto.ChatRoomResponse;
+import com.web.team.chat.dto.DirectChatRoomCreateRequest;
+import com.web.team.chat.dto.GroupChatRoomCreateRequest;
 import com.web.team.chat.repository.ChatMessageRepository;
 import com.web.team.chat.repository.ChatParticipantRepository;
 import com.web.team.chat.repository.ChatRoomRepository;
 import com.web.team.jwt.CustomUserDetails;
+import com.web.team.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,8 +40,6 @@ public class ChatRoomServiceSuccessTest {
     @Mock
     private ChatParticipantRepository chatParticipantRepository;
 
-    @Mock
-    private ChatMessageRepository chatMessageRepository;
 
     @Test
     @DisplayName("1:1 채팅방 생성 성공")
@@ -49,7 +51,7 @@ public class ChatRoomServiceSuccessTest {
         CustomUserDetails userDetails = mock(CustomUserDetails.class);
         when(userDetails.getUserId()).thenReturn(currentId);
 
-        when(chatRoomRepository.findByDirectRoomByUsers(currentId, anotherId))
+        when(chatRoomRepository.findDirectRoom(currentId, anotherId))
                 .thenReturn(Optional.empty());
 
         ChatRoom room = ChatRoom.create("1:1 채팅", RoomType.DIRECT);
@@ -57,9 +59,10 @@ public class ChatRoomServiceSuccessTest {
         when(chatRoomRepository.save(any(ChatRoom.class))).thenReturn(room);
         when(chatParticipantRepository.save(any(ChatParticipant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // when
+        DirectChatRoomCreateRequest request = new DirectChatRoomCreateRequest(anotherId);
 
-        ChatRoomResponse result = chatRoomService.createDirectChatRoom(anotherId, userDetails);
+        // when
+        ChatRoomResponse result = chatRoomService.createDirectChatRoom(request, userDetails);
 
         // then
         assertNotNull(result);
@@ -76,18 +79,21 @@ public class ChatRoomServiceSuccessTest {
         String name = "그룹 채팅방 1";
         List<Long> userIds = List.of(1L, 2L, 3L);
 
-        ChatRoom room = ChatRoom.create(name, RoomType.GROUP);
+        GroupChatRoomCreateRequest request = new GroupChatRoomCreateRequest(name, userIds);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
+        when(userDetails.getUserId()).thenReturn(100L);
 
+        ChatRoom room = ChatRoom.create(name, RoomType.GROUP);
         when(chatRoomRepository.save(any(ChatRoom.class))).thenReturn(room);
         when(chatParticipantRepository.save(any(ChatParticipant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        ChatRoom result = chatRoomService.createGroupChatRoom(name, userIds);
+        ChatRoomResponse result = chatRoomService.createGroupChatRoom(request, userDetails);
 
         // then
         assertNotNull(result);
         assertEquals(name, result.getName());
-        assertEquals(RoomType.GROUP, result.getRoomType());
+        assertEquals("GROUP", result.getType());
     }
 
     @Test
@@ -119,7 +125,10 @@ public class ChatRoomServiceSuccessTest {
         when(userDetails.getUserId()).thenReturn(userId);
 
         ChatRoom room = ChatRoom.create("그룹채팅", RoomType.GROUP);
-        ChatParticipant participant = ChatParticipant.enter(roomId, userId);
+        User user = new User();
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        ChatParticipant participant = ChatParticipant.enter(room, user);
 
         when(chatRoomRepository.findById(roomId)).thenReturn(Optional.of(room));
         when(chatParticipantRepository.findByRoomIdAndUserId(roomId, userId)).thenReturn(Optional.of(participant));

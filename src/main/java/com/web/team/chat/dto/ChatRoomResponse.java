@@ -1,5 +1,6 @@
 package com.web.team.chat.dto;
 
+import com.web.team.chat.domain.ChatRoom;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,7 +12,11 @@ public class ChatRoomResponse {
     private String name;
     private String type;
 
-    public static ChatRoomResponse of(Long roomId, String name, String type) {
-        return new ChatRoomResponse(roomId, name, type);
+    public static ChatRoomResponse from(ChatRoom chatRoom) {
+        return new ChatRoomResponse(
+                chatRoom.getId(),
+                chatRoom.getName(),
+                chatRoom.getRoomType().name()
+        );
     }
 }

@@ -22,6 +22,7 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
+        System.out.println("JWT SecretKey Loaded = " + secretKey);
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
@@ -56,7 +57,7 @@ public class JwtTokenProvider {
     // 토큰의 유효성에 대한 확인 ( 서명, 구조, 만료 포함)
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJwt(token);
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException exception){
             return false;

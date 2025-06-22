@@ -2,6 +2,7 @@ package com.web.team.chat.controller;
 
 import com.web.team.chat.domain.ChatRoom;
 import com.web.team.chat.dto.ChatRoomResponse;
+import com.web.team.chat.dto.DirectChatRoomCreateRequest;
 import com.web.team.chat.dto.GroupChatRoomCreateRequest;
 import com.web.team.chat.service.ChatRoomService;
 import com.web.team.jwt.CustomUserDetails;
@@ -17,17 +18,17 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     // 1:1 채팅방 생성
-    @PostMapping("/direct/{anotherId}")
-    public ChatRoomResponse createDirectRoom(@PathVariable Long anotherId,
+    @PostMapping("/direct")
+    public ChatRoomResponse createDirectRoom(@RequestBody DirectChatRoomCreateRequest request,
                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return chatRoomService.createDirectChatRoom(anotherId, userDetails);
+        return chatRoomService.createDirectChatRoom(request, userDetails);
     }
 
     // 그룹 채팅방 생성
     @PostMapping("/group")
-    public Long createGroupRoom(@RequestBody GroupChatRoomCreateRequest request) {
-        ChatRoom room = chatRoomService.createGroupChatRoom(request.getName(), request.getUserIds());
-        return room.getId();
+    public ChatRoomResponse createGroupRoom(@RequestBody GroupChatRoomCreateRequest request,
+                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return chatRoomService.createGroupChatRoom(request, userDetails);
     }
 
     // 채팅방 입장

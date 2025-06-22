@@ -3,6 +3,8 @@ package com.web.team.chat.service;
 import com.web.team.chat.domain.ChatRoom;
 import com.web.team.chat.domain.RoomType;
 import com.web.team.chat.dto.ChatRoomResponse;
+import com.web.team.chat.dto.DirectChatRoomCreateRequest;
+import com.web.team.chat.dto.GroupChatRoomCreateRequest;
 import com.web.team.chat.repository.ChatMessageRepository;
 import com.web.team.chat.repository.ChatParticipantRepository;
 import com.web.team.chat.repository.ChatRoomRepository;
@@ -31,9 +33,6 @@ public class ChatRoomServiceFailTest {
     private ChatRoomRepository chatRoomRepository;
 
     @Mock
-    private ChatMessageRepository chatMessageRepository;
-
-    @Mock
     private ChatParticipantRepository chatParticipantRepository;
 
     @Test
@@ -47,11 +46,13 @@ public class ChatRoomServiceFailTest {
         when(userDetails.getUserId()).thenReturn(currentId);
 
         ChatRoom room = ChatRoom.create("1:1 채팅", RoomType.DIRECT);
-        when(chatRoomRepository.findByDirectRoomByUsers(currentId, anotherId))
+        when(chatRoomRepository.findDirectRoom(currentId, anotherId))
                 .thenReturn(Optional.ofNullable(room));
 
+        DirectChatRoomCreateRequest request = new DirectChatRoomCreateRequest(anotherId);
+
         // when
-        ChatRoomResponse result = chatRoomService.createDirectChatRoom(anotherId, userDetails);
+        ChatRoomResponse result = chatRoomService.createDirectChatRoom(request, userDetails);
 
         // then
         assertNotNull(result);
@@ -66,9 +67,13 @@ public class ChatRoomServiceFailTest {
         String roomName = "그룹 채팅방";
         List<Long> emptyUserList = List.of(); // 빈 리스트 - 유저 없음
 
+        GroupChatRoomCreateRequest request = new GroupChatRoomCreateRequest(roomName, emptyUserList);
+        CustomUserDetails userDetails = mock(CustomUserDetails.class);
+        when(userDetails.getUserId()).thenReturn(1L); // 사용자 ID 지정 (필요 시)
+
         // when & then
         assertThrows(IllegalArgumentException.class,
-                () -> chatRoomService.createGroupChatRoom(roomName, emptyUserList),
+                () -> chatRoomService.createGroupChatRoom(request, userDetails),
                 "참여자는 한 명 이상이여야 합니다.");
     }
 
