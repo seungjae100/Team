@@ -1,12 +1,11 @@
 package com.web.team.chat.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
+@AllArgsConstructor
 public class GroupChatRoomCreateRequest {
 
     private String name; // 채팅방 이름

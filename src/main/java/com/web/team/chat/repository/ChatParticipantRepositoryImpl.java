@@ -1,6 +1,5 @@
 package com.web.team.chat.repository;
 
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.web.team.chat.domain.ChatParticipant;
 import com.web.team.chat.domain.QChatParticipant;
@@ -20,7 +19,7 @@ public class ChatParticipantRepositoryImpl implements ChatParticipantRepositoryC
         Long count = jpaQueryFactory
                 .select(participant.count())
                 .from(participant)
-                .where(participant.roomId.eq(roomId)
+                .where(participant.chatRoom.id.eq(roomId)
                         .and(participant.exited.isFalse()))
                 .fetchOne();
 
@@ -33,8 +32,8 @@ public class ChatParticipantRepositoryImpl implements ChatParticipantRepositoryC
 
         return Optional.ofNullable(
                 jpaQueryFactory.selectFrom(participant)
-                        .where(participant.roomId.eq(roomId)
-                                .and(participant.userId.eq(userId)))
+                        .where(participant.chatRoom.id.eq(roomId)
+                                .and(participant.user.id.eq(userId)))
                         .fetchOne()
         );
     }

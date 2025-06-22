@@ -18,9 +18,9 @@ public class ChatMessageResponse {
 
     public static ChatMessageResponse from(ChatMessage chatMessage) {
         return new ChatMessageResponse(
-                chatMessage.getRoomId(),
-                chatMessage.getSenderId(),
-                chatMessage.getSenderName(),
+                chatMessage.getChatRoom().getId(),
+                chatMessage.getSender().getId(),
+                chatMessage.getSender().getName(),
                 chatMessage.getMessage(),
                 chatMessage.getSentAt()
         );

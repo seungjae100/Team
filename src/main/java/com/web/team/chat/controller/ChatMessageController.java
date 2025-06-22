@@ -31,10 +31,4 @@ public class ChatMessageController {
         return chatMessageService.getMessageByRoomId(roomId);
     }
 
-    // 채팅방 삭제 시 메세지도 같이 삭제
-    @DeleteMapping("/{roomId}")
-    public ResponseEntity<Void> deletedMessage(@PathVariable Long roomId) {
-        chatMessageService.deletedMessageByRoomId(roomId);
-        return ResponseEntity.noContent().build();
-    }
 }
