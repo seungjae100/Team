@@ -2,14 +2,20 @@ package com.web.team.chat.controller;
 
 import com.web.team.chat.dto.ChatMessageRequest;
 import com.web.team.chat.dto.ChatMessageResponse;
+import com.web.team.chat.dto.MessageLoadRequest;
 import com.web.team.chat.service.ChatMessageService;
 import com.web.team.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,12 +30,27 @@ public class ChatWebSocketController {
     * */
 
     @MessageMapping("/chat.sendMessage")
-    public void sendMessage(ChatMessageRequest request,
-                            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        // 메세지 저장
-        ChatMessageResponse response = chatMessageService.sendMessage(request, userDetails);
+    public void sendMessage(@Payload ChatMessageRequest request,
+                            @Header("simpSessionAttributes") java.util.Map<String, Object> attributes) {
 
-        // 구독자들에게 메세지 전송
-        messagingTemplate.convertAndSend("/topic/chat/room/" + request.getRoomId(), response);
+        Long userId = (Long) attributes.get("userId");
+
+        ChatMessageResponse response = chatMessageService.sendMessage(request, userId);
+
+
+        messagingTemplate.convertAndSend("/topic/chat/" + request.getRoomId(), response);
+    }
+
+    @MessageMapping("/chat.loadMessages")
+    public void loadMessages(@Payload MessageLoadRequest request,
+                             @Header("simpSessionAttributes")Map<String, Object> attributes) {
+
+        Long userId = (Long) attributes.get("userId");
+
+        List<ChatMessageResponse> messages = chatMessageService.getMessageByRoomId(
+             request.getRoomId(), userId, request.getPage(), request.getSize()
+        );
+
+        messagingTemplate.convertAndSend("/topic/chat/" + request.getRoomId() + "/history", messages);
     }
 }

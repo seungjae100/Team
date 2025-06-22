@@ -1,6 +1,5 @@
 package com.web.team.chat.controller;
 
-import com.web.team.chat.domain.ChatRoom;
 import com.web.team.chat.dto.ChatRoomResponse;
 import com.web.team.chat.dto.DirectChatRoomCreateRequest;
 import com.web.team.chat.dto.GroupChatRoomCreateRequest;
