@@ -34,7 +34,7 @@ public class AdminService {
     @Transactional
     public void adminRegister(AdminRegisterRequest request) {
 
-        adminRepository.findByUsername(request.getUsername())
+        adminRepository.existsAdminByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("이미 사용중인 아이디입니다."));
 
         Admin admin = Admin.create(
@@ -64,7 +64,7 @@ public class AdminService {
     @Transactional(readOnly = true)
     public Admin adminLoginCheck(AdminLoginRequest request) {
         // DB에서 아이디로 사용자 조회 중복확인
-        Admin admin = adminRepository.existsAdminByUsername(request.getUsername())
+        Admin admin = adminRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("이미 사용중인 아이디입니다."));
 
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {

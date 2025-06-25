@@ -26,13 +26,27 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+
+                        // HTML, JS 정적 파일 허용
+                        .requestMatchers(
+                                "/", "/index.html","/favicon.ico",
+                                "/admin","/admin/**", "/js/admin/**","/pages/admin/**",
+                                "/user","/user/**","/js/user/**","/pages/user/**",
+                                "/js/**", "/pages/**", "/js/common/**"
+                        ).permitAll()
                         // ALL
-                        .requestMatchers("/api/user/register", "/api/user/login").permitAll()
-                        // 사원 (ROLE_USER)
-                        .requestMatchers("/api/user/**").hasRole("USER")
+                        .requestMatchers("/api/user/login",
+                                         "/api/admin/register","/api/admin/login",
+                                         "/admin", "/adminRegister").permitAll()
+
                         // 관리자 (ROLE_ADMIN)
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/user/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/userRegister","/api/admin/userUpdate",
+                                        "/api/admin/logout","/api/admin/reAccessToken",
+                                        "/adminDashboard", "/userRegister").hasRole("ADMIN")
+
+                        // 사원 (ROLE_USER)
+                        .requestMatchers("/api/user/logout","/api/user/password", "/api/user/reAccessToken").hasRole("USER")
+
 
                     .anyRequest().authenticated()
                 )
