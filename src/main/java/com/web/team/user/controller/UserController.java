@@ -23,9 +23,11 @@ public class UserController {
 
     // 직원 계정 로그인
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponse> userLogin(@RequestBody UserLoginRequest request) {
-        UserLoginResponse response = userService.userLogin(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<String> userLogin(@RequestBody UserLoginRequest request,
+                                            HttpServletResponse response) {
+        UserLoginResponse loginResponse = userService.userLogin(request);
+        CookieUtils.setCookie(response, "accessToken", loginResponse.getAccessToken(), 60 * 60 * 12);
+        return ResponseEntity.ok("로그인 성공");
     }
 
     // 직원 계정 로그아웃

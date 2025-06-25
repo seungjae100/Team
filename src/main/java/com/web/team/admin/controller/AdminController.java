@@ -35,9 +35,12 @@ public class AdminController {
 
     // 관리자 계정 로그인
     @PostMapping("/login")
-    public ResponseEntity<AdminLoginResponse> adminLogin(@RequestBody AdminLoginRequest request) {
-        AdminLoginResponse response = adminService.adminLogin(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<String> adminLogin(@RequestBody AdminLoginRequest request,
+                                                         HttpServletResponse response) {
+        AdminLoginResponse loginResponse = adminService.adminLogin(request);
+
+        CookieUtils.setCookie(response, "accessToken", loginResponse.getAccessToken(), 60 * 60 * 12);
+        return ResponseEntity.ok("관리자 로그인 성공");
     }
 
     // 관리자 계정 로그아웃
@@ -69,14 +72,14 @@ public class AdminController {
 
 
     // 직원 계정 회원가입
-    @PostMapping("/user/register")
+    @PostMapping("/userRegister")
     public ResponseEntity<String> userRegister(@RequestBody UserRegisterRequest request) {
         adminService.userRegister(request);
         return ResponseEntity.status(HttpStatus.CREATED).body("직원 등록이 완료되었습니다.");
     }
 
     // 직원 정보 수정
-    @PatchMapping("/user/update")
+    @PatchMapping("/userUpdate")
     public ResponseEntity<String> userUpdate(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UserUpdateRequest request) {
         adminService.userUpdate(userDetails.getUserId(), request);
         return ResponseEntity.ok("정보 수정 완료");

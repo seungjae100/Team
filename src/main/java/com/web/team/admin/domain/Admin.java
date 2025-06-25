@@ -22,6 +22,7 @@ public class Admin {
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     // 관리자의 직원 등록
