@@ -1,5 +1,6 @@
 package com.web.team.jwt;
 
+import com.web.team.user.domain.Role;
 import com.web.team.user.domain.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,6 +17,10 @@ public class CustomUserDetails implements UserDetails {
 
     public Long getUserId() {
         return user.getId();
+    }
+
+    public Role getRole() {
+        return user.getRole();
     }
 
     @Override
