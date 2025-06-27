@@ -87,35 +87,4 @@ public class AdminService {
         tokenService.reAccessToken(response, expiredAccessToken);
     }
 
-
-    // 직원 계정 회원가입
-    @Transactional
-    public void userRegister(UserRegisterRequest request) {
-
-        // 활성화/비활성화를 모두 포함하여 이메일 중복 체크
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("이미 사용 중인 이메일입니다.");
-        }
-
-        User user = User.create(
-                request.getEmail(),
-                passwordEncoder.encode(request.getPassword()),
-                request.getName(),
-                request.getPosition()
-        );
-
-        userRepository.save(user);
-    }
-
-    // 관리자의 직원 정보 수정
-    @Transactional
-    public void userUpdate(Long userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("직원을 찾을 수 없습니다."));
-
-        user.updateUser(request.getName(), request.getPosition(), request.getIsActive());
-    }
-
-
-
 }

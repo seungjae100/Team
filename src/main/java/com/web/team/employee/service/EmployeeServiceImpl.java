@@ -2,13 +2,18 @@ package com.web.team.employee.service;
 
 import com.web.team.employee.dto.EmployeeAdminResponse;
 import com.web.team.employee.dto.EmployeeUserResponse;
-import com.web.team.jwt.CustomAdminDetails;
+import com.web.team.exception.CustomException;
+import com.web.team.exception.ErrorCode;
 import com.web.team.jwt.CustomUserDetails;
 import com.web.team.user.domain.Role;
 import com.web.team.user.domain.User;
+import com.web.team.user.dto.UserRegisterRequest;
+import com.web.team.user.dto.UserUpdateRequest;
 import com.web.team.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,7 +22,9 @@ import java.util.List;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     @Override
     public Object getAllEmployees(CustomUserDetails userDetails) {
         Role role = userDetails.getRole();
@@ -31,5 +38,28 @@ public class EmployeeServiceImpl implements EmployeeService {
                 : users.stream().map(EmployeeUserResponse::from).toList();
     }
 
+    @Transactional
+    @Override
+    public void registerEmployee(UserRegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        }
 
+        User user = User.create(
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()),
+                request.getName(),
+                request.getPosition()
+        );
+        userRepository.save(user);
+    }
+
+    @Transactional
+    @Override
+    public void updateEmployee(Long userId, UserUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateUser(request.getName(), request.getPosition(), request.getIsActive());
+    }
 }

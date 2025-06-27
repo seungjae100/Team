@@ -1,8 +1,14 @@
 package com.web.team.employee.dto;
 
 import com.web.team.user.domain.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-public record EmployeeAdminResponse(String name, String position, boolean isActive) {
+public record EmployeeAdminResponse(@Schema(description = "직원 이름", example = "홍길동")
+                                    String name,
+                                    @Schema(description = "직급", example = "MANAGER")
+                                    String position,
+                                    @Schema(description = "활성 상태", example = "true")
+                                    boolean isActive) {
     public static EmployeeAdminResponse from(User user) {
         return new EmployeeAdminResponse(
                 user.getName(),
