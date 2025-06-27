@@ -71,18 +71,6 @@ public class AdminController {
     }
 
 
-    // 직원 계정 회원가입
-    @PostMapping("/userRegister")
-    public ResponseEntity<String> userRegister(@RequestBody UserRegisterRequest request) {
-        adminService.userRegister(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("직원 등록이 완료되었습니다.");
-    }
 
-    // 직원 정보 수정
-    @PatchMapping("/userUpdate")
-    public ResponseEntity<String> userUpdate(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UserUpdateRequest request) {
-        adminService.userUpdate(userDetails.getUserId(), request);
-        return ResponseEntity.ok("정보 수정 완료");
-    }
 
 }
