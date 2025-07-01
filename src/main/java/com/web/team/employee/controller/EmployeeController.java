@@ -49,4 +49,20 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.getAllEmployees(userDetails));
     }
 
+    @Operation(summary = "직원 개인 조회", description = "관리자는 모든 직원 조회가 가능하다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "직원 정보 조회 성공"),
+            @ApiResponse(responseCode = "403", ref = "#/components/response/Forbidden"),
+            @ApiResponse(responseCode = "404", ref = "#/components/response/NotFound"),
+            @ApiResponse(responseCode = "500", ref = "#/components/response/InternalServerError")
+    })
+    @GetMapping("/{id}")
+    @PreAuthorize("hashAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<?> getEmployeeById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return ResponseEntity.ok(employeeService.getEmployeeById(id, userDetails));
+    }
+
 }
