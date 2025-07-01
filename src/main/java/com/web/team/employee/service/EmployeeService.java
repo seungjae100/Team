@@ -12,4 +12,6 @@ public interface EmployeeService {
 
     void updateEmployee(Long userId, UserUpdateRequest request);
 
+    Object getEmployeeById(Long id, CustomUserDetails userDetails);
+
 }

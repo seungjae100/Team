@@ -24,7 +24,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public Object getAllEmployees(CustomUserDetails userDetails) {
         Role role = userDetails.getRole();
@@ -60,6 +60,23 @@ public class EmployeeServiceImpl implements EmployeeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        if (request.getIsActive() != null && !user.getRole().equals(Role.ADMIN)) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
         user.updateUser(request.getName(), request.getPosition(), request.getIsActive());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Object getEmployeeById(Long userId, CustomUserDetails userDetails) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (userDetails.getRole() == Role.ADMIN) {
+            return EmployeeAdminResponse.from(user);
+        }
+
+        return EmployeeUserResponse.from(user);
     }
 }
