@@ -1,10 +1,14 @@
 package com.web.team.admin.domain;
 
+import com.web.team.board.domain.Board;
 import com.web.team.user.domain.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -24,6 +28,9 @@ public class Admin {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "writer")
+    private List<Board> writtenBoards = new ArrayList<>();
 
     // 관리자의 직원 등록
     public static Admin create(String username, String password, String name) {
