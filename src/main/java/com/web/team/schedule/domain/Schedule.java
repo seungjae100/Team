@@ -83,5 +83,23 @@ public class Schedule {
         return schedule;
     }
 
+    public void update(String title, String content, LocalDateTime startedAt, LocalDateTime endAt, ScheduleType type) {
+        if ( title != null) {
+            this.title = title;
+        }
+        if ( content != null) {
+            this.content = content;
+        }
+        if ( startedAt != null) {
+            this.startedAt = startedAt;
+        }
+        if ( endAt != null) {
+            this.endAt = endAt;
+        }
+        if ( type != null) {
+            this.type = type;
+        }
+    }
+
 
 }

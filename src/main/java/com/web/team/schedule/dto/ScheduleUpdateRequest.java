@@ -4,7 +4,7 @@ import com.web.team.schedule.domain.ScheduleType;
 
 import java.time.LocalDateTime;
 
-public record ScheduleCreateRequest (
+public record ScheduleUpdateRequest(
         String title,
         String content,
         LocalDateTime startedAt,
