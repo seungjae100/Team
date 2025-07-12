@@ -23,6 +23,7 @@ public class Board {
     @Column(nullable = false, unique = true, updatable = false)
     private String uuid = UUID.randomUUID().toString();
 
+    @Column(unique = true)
     private String title;
 
     private String content;
