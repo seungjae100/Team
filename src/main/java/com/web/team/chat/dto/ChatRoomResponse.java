@@ -1,17 +1,21 @@
 package com.web.team.chat.dto;
 
 import com.web.team.chat.domain.ChatRoom;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Getter
-@AllArgsConstructor
-public class ChatRoomResponse {
+@Schema(description = "채팅방 응답 DTO")
+public record ChatRoomResponse(
 
-    private Long roomId;
-    private String name;
-    private String type;
+    @Schema(description = "채팅방 ID", example = "1 , 보안 리팩토링 예정")
+    Long roomId,
 
+    @Schema(description = "생성될 그룹 채팅방 이름", example = "그룹 채팅방 1")
+    String name,
+
+    @Schema(description = "채팅방 타입", example = "DIRECT")
+    String type
+
+) {
     public static ChatRoomResponse from(ChatRoom chatRoom) {
         return new ChatRoomResponse(
                 chatRoom.getId(),
