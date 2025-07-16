@@ -1,11 +1,12 @@
 package com.web.team.admin.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Getter
-@AllArgsConstructor
-public class AdminLoginResponse {
+@Schema(description = "관리자 로그인 응답 DTO")
+public record AdminLoginResponse(
 
-    private String accessToken;
+        @Schema(description = "토큰을 반환", example = "feswfeaw2j0fe-.....")
+        String accessToken
+) {
+
 }
