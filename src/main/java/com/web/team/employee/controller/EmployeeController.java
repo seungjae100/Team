@@ -7,6 +7,7 @@ import com.web.team.user.dto.UserUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,19 +17,32 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "직원 계정 관련 API", description = "관리자가 직원을 관리하는 API 입니다.")
 @RequestMapping("/api/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    // 직원 계정 회원가입
+    @Operation(summary = "관리자의 직원 등록", description = "관리자가 직원의 등록을 진행합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "직원 등록 성공"),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+            @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+            @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
+    })
     @PostMapping("/register")
     public ResponseEntity<String> userRegister(@RequestBody UserRegisterRequest request) {
         employeeService.registerEmployee(request);
         return ResponseEntity.status(HttpStatus.CREATED).body("직원 등록이 완료되었습니다.");
     }
 
-    // 직원 정보 수정
+    @Operation(summary = "관리자의 직원 수정", description = "관리자가 직원의 수정을 진행합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "직원 수정 성공"),
+            @ApiResponse(responseCode = "400", ref = "#/components/responses/BadRequest"),
+            @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
+            @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
+    })
     @PatchMapping("/update")
     public ResponseEntity<String> userUpdate(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UserUpdateRequest request) {
         employeeService.updateEmployee(userDetails.getUserId(), request);
