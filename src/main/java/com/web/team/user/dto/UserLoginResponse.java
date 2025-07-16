@@ -1,11 +1,12 @@
 package com.web.team.user.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Getter
-@AllArgsConstructor
-public class UserLoginResponse {
+@Schema(description = "유저의 로그인 응답 DTO")
+public record UserLoginResponse(
 
-    private String accessToken;
+        @Schema(description = "토큰값으로 응답을 준다.", example = "wsfjwajifjiew231-fjekalw..")
+        String accessToken
+) {
+
 }
