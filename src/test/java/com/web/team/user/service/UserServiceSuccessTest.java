@@ -10,17 +10,12 @@ import com.web.team.user.dto.PasswordChangeRequest;
 import com.web.team.user.dto.UserLoginRequest;
 import com.web.team.user.dto.UserLoginResponse;
 import com.web.team.user.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -77,7 +72,7 @@ class UserServiceSuccessTest {
         UserLoginResponse response = userService.userLogin(request);
 
         // then
-        assertEquals("access-Token", response.getAccessToken());
+        assertEquals("access-Token", response.accessToken());
         verify(tokenService).storeRefreshToken(anyLong(), eq("refresh-Token"));
     }
 

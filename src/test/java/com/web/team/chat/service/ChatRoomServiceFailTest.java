@@ -56,8 +56,8 @@ public class ChatRoomServiceFailTest {
 
         // then
         assertNotNull(result);
-        assertEquals("1:1 채팅", result.getName());
-        assertEquals("DIRECT", result.getType());
+        assertEquals("1:1 채팅", result.name());
+        assertEquals("DIRECT", result.type());
     }
 
     @Test

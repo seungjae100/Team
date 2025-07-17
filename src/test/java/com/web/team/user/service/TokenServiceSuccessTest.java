@@ -1,6 +1,5 @@
 package com.web.team.user.service;
 
-import com.web.team.jwt.JwtTokenProvider;
 import com.web.team.jwt.TokenService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,16 +25,10 @@ public class TokenServiceSuccessTest {
     private TokenService tokenService;
 
     @Mock
-    private UserService userService;
-
-    @Mock
     private RedisTemplate<String, String> redisTemplate;
 
     @Mock
     private ValueOperations<String, String> valueOperations;
-
-    @Mock
-    private JwtTokenProvider jwtTokenProvider;
 
     @Test
     @DisplayName("storedRefreshToken 성공 - Redis에 저장")

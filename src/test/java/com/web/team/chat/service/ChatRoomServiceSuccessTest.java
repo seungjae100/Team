@@ -66,8 +66,8 @@ public class ChatRoomServiceSuccessTest {
 
         // then
         assertNotNull(result);
-        assertEquals("1:1 채팅", result.getName());
-        assertEquals("DIRECT", result.getType());
+        assertEquals("1:1 채팅", result.name());
+        assertEquals("DIRECT", result.type());
 
 
     }
@@ -92,8 +92,8 @@ public class ChatRoomServiceSuccessTest {
 
         // then
         assertNotNull(result);
-        assertEquals(name, result.getName());
-        assertEquals("GROUP", result.getType());
+        assertEquals(name, result.name());
+        assertEquals("GROUP", result.type());
     }
 
     @Test

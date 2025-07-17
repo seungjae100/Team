@@ -1,5 +1,7 @@
 package com.web.team.user.service;
 
+import com.web.team.exception.CustomException;
+import com.web.team.exception.ErrorCode;
 import com.web.team.jwt.CustomUserDetails;
 import com.web.team.user.domain.User;
 import com.web.team.user.dto.*;
@@ -42,11 +44,11 @@ public class UserService {
 
         // DB에서 이메일로 사용자를 조회
         User user = userRepository.findActiveUserByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("존재하지 않거나 비활성화된 계정입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 비밀번호 확인
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
         // 로그인 성공
@@ -57,7 +59,7 @@ public class UserService {
     @Transactional
     public void changePassword(Long userId, PasswordChangeRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("해당 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         user.changePassword(passwordEncoder.encode(request.getPassword()));
     }
