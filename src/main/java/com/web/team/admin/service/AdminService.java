@@ -5,13 +5,11 @@ import com.web.team.admin.dto.AdminLoginRequest;
 import com.web.team.admin.dto.AdminLoginResponse;
 import com.web.team.admin.dto.AdminRegisterRequest;
 import com.web.team.admin.repository.AdminRepository;
+import com.web.team.exception.CustomException;
+import com.web.team.exception.ErrorCode;
 import com.web.team.jwt.CustomAdminDetails;
 import com.web.team.jwt.JwtTokenProvider;
 import com.web.team.jwt.TokenService;
-import com.web.team.user.domain.User;
-import com.web.team.user.dto.UserRegisterRequest;
-import com.web.team.user.dto.UserUpdateRequest;
-import com.web.team.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,6 @@ public class AdminService {
 
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenService tokenService;
 
@@ -34,8 +31,12 @@ public class AdminService {
     @Transactional
     public void adminRegister(AdminRegisterRequest request) {
 
-        adminRepository.existsAdminByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("이미 사용중인 아이디입니다."));
+        boolean exists = adminRepository.existsByUsername(request.getUsername());
+
+        if (exists) {
+            throw new CustomException(ErrorCode.DUPLICATE_ADMIN_USERNAME);
+        }
+
 
         Admin admin = Admin.create(
                 request.getUsername(),
@@ -65,10 +66,10 @@ public class AdminService {
     public Admin adminLoginCheck(AdminLoginRequest request) {
         // DB에서 아이디로 사용자 조회 중복확인
         Admin admin = adminRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("이미 사용중인 아이디입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ADMIN_NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
         return admin;

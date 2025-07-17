@@ -1,5 +1,7 @@
 package com.web.team.user.service;
 
+import com.web.team.exception.CustomException;
+import com.web.team.exception.ErrorCode;
 import com.web.team.jwt.JwtTokenProvider;
 import com.web.team.jwt.TokenService;
 import com.web.team.user.domain.Position;
@@ -76,12 +78,12 @@ class UserServiceFailTest {
                 .thenReturn(Optional.empty());
 
         // when
-        RuntimeException e = assertThrows(RuntimeException.class, () -> {
+        CustomException e = assertThrows(CustomException.class, () -> {
             userService.userLoginCheck(request);
         });
 
         // then
-        assertEquals("존재하지 않거나 비활성화된 계정입니다.", e.getMessage());
+        assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
     }
 
     @Test

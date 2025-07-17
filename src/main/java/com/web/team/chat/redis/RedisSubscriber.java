@@ -21,7 +21,7 @@ public class RedisSubscriber implements MessageListener {
             String json = new String(message.getBody());
             ChatMessageResponse response = objectMapper.readValue(json, ChatMessageResponse.class);
 
-            Long roomId = response.getRoomId();
+            Long roomId = response.roomId();
             messagingTemplate.convertAndSend("/topic/chat/" + roomId, response);
         } catch (Exception e) {
             throw new RuntimeException("Redis 메세지 구독 실패", e);
