@@ -6,7 +6,6 @@ import com.web.team.chat.domain.RoomType;
 import com.web.team.chat.dto.ChatRoomResponse;
 import com.web.team.chat.dto.DirectChatRoomCreateRequest;
 import com.web.team.chat.dto.GroupChatRoomCreateRequest;
-import com.web.team.chat.repository.ChatMessageRepository;
 import com.web.team.chat.repository.ChatParticipantRepository;
 import com.web.team.chat.repository.ChatRoomRepository;
 import com.web.team.jwt.CustomUserDetails;
@@ -24,7 +23,6 @@ public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatParticipantRepository chatParticipantRepository;
-    private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
 
     // 1:1 채팅방 생성하기
@@ -42,8 +40,10 @@ public class ChatRoomService {
 
         // 2. 없다면 생성
         ChatRoom newRoom = ChatRoom.create("1:1 채팅", RoomType.DIRECT);
-        User currentUser = userRepository.findById(currentId).orElseThrow();
-        User anotherUser = userRepository.findById(anotherId).orElseThrow();
+        User currentUser = userRepository.findById(currentId)
+                .orElseThrow(() -> new IllegalArgumentException("현재 유저 정보를 찾을 수 없습니다."));
+        User anotherUser = userRepository.findById(anotherId)
+                .orElseThrow(() -> new IllegalArgumentException("현재 유저 정보를 찾을 수 없습니다."));
 
         ChatParticipant p1 = ChatParticipant.enter(newRoom, currentUser);
         ChatParticipant p2 = ChatParticipant.enter(newRoom, anotherUser);
@@ -61,14 +61,20 @@ public class ChatRoomService {
         Long creatorId = userDetails.getUserId();
         String roomName = request.getName();
 
+        if (request.getUserIds() == null || request.getUserIds().isEmpty()) {
+            throw new IllegalArgumentException("참여자는 한 명 이상이여야합니다.");
+        }
+
         ChatRoom newRoom = ChatRoom.create(roomName, RoomType.GROUP);
-        User creator = userRepository.findById(creatorId).orElseThrow();
+        User creator = userRepository.findById(creatorId)
+                .orElseThrow(() -> new IllegalArgumentException("생성자 유저 정보를 찾을 수 없습니다."));
         ChatParticipant creatorParticipant = ChatParticipant.enter(newRoom, creator);
         newRoom.addParticipant(creatorParticipant);
 
         for (Long userId : request.getUserIds()) {
             if (userId.equals(creatorId)) continue; // 본인은 참여
-            User invitee = userRepository.findById(userId).orElseThrow();
+            User invitee = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("초대할 유저 정보를 찾을 수 없습니다."));
             ChatParticipant participant = ChatParticipant.enter(newRoom, invitee);
             newRoom.addParticipant(participant);
         }
@@ -82,8 +88,11 @@ public class ChatRoomService {
     @Transactional
     public void enterRoom(Long roomId, CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
-        ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow();
-        User user = userRepository.findById(userId).orElseThrow();
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다."));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 정보를 찾을 수 없습니다."));
 
         Optional<ChatParticipant> existing = chatParticipantRepository.findByRoomIdAndUserId(roomId, userId);
         if (existing.isPresent()) {
@@ -100,11 +109,13 @@ public class ChatRoomService {
     public void exitRoom(Long roomId, CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
 
+        ChatRoom room = chatRoomRepository.findById(roomId)
+            .orElseThrow(() -> new IllegalArgumentException("채팅방이 없습니다."));
+
         ChatParticipant participant = chatParticipantRepository.findByRoomIdAndUserId(roomId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방에 참여자가 없습니다."));
-        participant.exit();
 
-        ChatRoom room = participant.getChatRoom();
+        participant.exit();
         room.decreaseUserCount();
 
         if (room.isEmpty()) {

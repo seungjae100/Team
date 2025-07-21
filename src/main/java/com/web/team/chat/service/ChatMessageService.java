@@ -7,8 +7,6 @@ import com.web.team.chat.dto.ChatMessageResponse;
 import com.web.team.chat.redis.RedisPublisher;
 import com.web.team.chat.repository.ChatMessageRepository;
 import com.web.team.chat.repository.ChatRoomRepository;
-import com.web.team.chat.repository.ChatRoomRepositoryCustom;
-import com.web.team.jwt.CustomUserDetails;
 import com.web.team.user.domain.User;
 import com.web.team.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
