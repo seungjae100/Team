@@ -34,6 +34,17 @@ public class ChatMessageService {
      */
     @Transactional
     public ChatMessageResponse sendMessage(ChatMessageRequest request, Long userId) {
+
+        // 유효성 검사 1. 메세지 내용이 null/blank
+        if (request.getMessage() == null || request.getMessage().isBlank()) {
+                throw new IllegalArgumentException("메세지 내용은 비어 있을 수 없습니다.");
+        }
+
+        // 유효성 검사 2. roomId 체크
+        if (request.getRoomId() == null) {
+                throw new IllegalArgumentException("채팅방 ID가 필요합니다.");
+        }
+
         // 사용자를 조회한다.
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
@@ -48,8 +59,12 @@ public class ChatMessageService {
 
         ChatMessageResponse response = ChatMessageResponse.from(saved);
 
-        // Redis 채널로 메세지 발행
-        redisPublisher.publish(chatRoom.getId(), response);
+        // Redis 발행 시 예외 발생해도 서비스는 유지
+        try {
+                redisPublisher.publish(chatRoom.getId(), response);
+        } catch (Exception e) {
+                System.err.println("Redis 발행 실패: " + e.getMessage());
+        }
 
         return response;
 
@@ -60,6 +75,11 @@ public class ChatMessageService {
      */
     @Transactional(readOnly = true)
     public List<ChatMessageResponse> getMessageByRoomId(Long roomId, Long userId, int page, int size) {
+        // size 유효성 검사
+        if (size > 100) {
+                throw new IllegalArgumentException("한 번에 조회할 수 있는 메세지 수는 100개 입니다.");
+        }
+
         // 채팅방 존재 확인
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));

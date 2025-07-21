@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.web.team.user.domain.User;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,7 +34,6 @@ public class ChatRoom {
 
     public void addParticipant(ChatParticipant participant) {
         this.participants.add(participant);
-        participant.assignChatRoom(this);
     }
 
     public void addMessage(ChatMessage message) {
