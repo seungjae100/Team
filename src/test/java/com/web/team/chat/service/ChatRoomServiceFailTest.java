@@ -5,10 +5,11 @@ import com.web.team.chat.domain.RoomType;
 import com.web.team.chat.dto.ChatRoomResponse;
 import com.web.team.chat.dto.DirectChatRoomCreateRequest;
 import com.web.team.chat.dto.GroupChatRoomCreateRequest;
-import com.web.team.chat.repository.ChatMessageRepository;
 import com.web.team.chat.repository.ChatParticipantRepository;
 import com.web.team.chat.repository.ChatRoomRepository;
 import com.web.team.jwt.CustomUserDetails;
+import com.web.team.user.repository.UserRepository;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +35,9 @@ public class ChatRoomServiceFailTest {
 
     @Mock
     private ChatParticipantRepository chatParticipantRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Test
     @DisplayName("1:1 채팅방 생성 실패")
@@ -123,9 +127,10 @@ public class ChatRoomServiceFailTest {
         when(chatParticipantRepository.findByRoomIdAndUserId(roomId, userId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThrows(IllegalArgumentException.class,
-                () -> chatRoomService.exitRoom(roomId, userDetails),
-                "참여자를 찾을 수 없습니다.");
+        Throwable ex = assertThrows(IllegalArgumentException.class,
+                () -> chatRoomService.exitRoom(roomId, userDetails));
+
+        assertEquals("채팅방에 참여자가 없습니다.", ex.getMessage());
 
     }
 }
