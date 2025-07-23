@@ -11,7 +11,6 @@ import com.web.team.schedule.dto.ScheduleUpdateRequest;
 import com.web.team.schedule.repository.ScheduleRepository;
 import com.web.team.user.domain.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,9 +72,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        if (!user.equals(schedule.getUser())) {
-            throw new AccessDeniedException("본인이 등록한 일정만 수정할 수 있습니다.");
-        }
+        schedule.validateOwner(user);
 
         schedule.update(
                 request.title(),
@@ -91,9 +88,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        if (!admin.equals(schedule.getAdmin())) {
-            throw new AccessDeniedException("본인이 등록한 회사 일정만 수정할 수 있습니다.");
-        }
+        schedule.validateOwner(admin);
 
         schedule.update(
                 request.title(),
@@ -109,9 +104,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        if (!schedule.getAdmin().equals(admin)) {
-            throw new CustomException(ErrorCode.SCHEDULE_FORBIDDEN);
-        }
+        schedule.validateOwner(admin);
 
         scheduleRepository.delete(schedule);
     }
@@ -121,9 +114,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        if (!schedule.getUser().equals(user)) {
-            throw new CustomException(ErrorCode.SCHEDULE_FORBIDDEN);
-        }
+        schedule.validateOwner(user);
 
         scheduleRepository.delete(schedule);
     }

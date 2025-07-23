@@ -1,8 +1,11 @@
 package com.web.team.schedule.domain;
 
 import com.web.team.admin.domain.Admin;
+import com.web.team.exception.CustomException;
+import com.web.team.exception.ErrorCode;
 import com.web.team.user.domain.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,8 +18,7 @@ import java.time.LocalDateTime;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 기본 생성자, 외부 생성 차단
 public class Schedule {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,6 +58,10 @@ public class Schedule {
             String title, String content, LocalDateTime startedAt, LocalDateTime endAt,
             ScheduleType type, Admin admin
     ) {
+
+            validateTimePeriod(startedAt, endAt);
+            if (admin == null) throw new CustomException(ErrorCode.INVALID_ADMIN);
+
             Schedule schedule = new Schedule();
             schedule.title = title;
             schedule.content = content;
@@ -72,6 +78,10 @@ public class Schedule {
             String title, String content, LocalDateTime startedAt, LocalDateTime endAt,
             ScheduleType type, User user
     ) {
+
+        validateTimePeriod(startedAt, endAt);
+        if (user == null) throw new CustomException(ErrorCode.INVALID_USER);
+
         Schedule schedule = new Schedule();
         schedule.title = title;
         schedule.content = content;
@@ -84,21 +94,30 @@ public class Schedule {
     }
 
     public void update(String title, String content, LocalDateTime startedAt, LocalDateTime endAt, ScheduleType type) {
-        if ( title != null) {
-            this.title = title;
+        if (startedAt != null && endAt != null) validateTimePeriod(startedAt, endAt);
+        if ( title != null) this.title = title;
+        if ( content != null) this.content = content;
+        if ( startedAt != null) this.startedAt = startedAt;
+        if ( endAt != null) this.endAt = endAt;
+        if ( type != null) this.type = type;
+        
+    }
+
+    public void validateOwner(Admin admin) {
+        if (!this.admin.equals(admin)) {
+            throw new CustomException(ErrorCode.SCHEDULE_FORBIDDEN);
         }
-        if ( content != null) {
-            this.content = content;
+    }
+
+    public void validateOwner(User user) {
+        if (!this.user.equals(user)) {
+            throw new CustomException(ErrorCode.SCHEDULE_FORBIDDEN);
         }
-        if ( startedAt != null) {
-            this.startedAt = startedAt;
-        }
-        if ( endAt != null) {
-            this.endAt = endAt;
-        }
-        if ( type != null) {
-            this.type = type;
-        }
+    }
+
+    // 유효 시간 검사
+    private static void validateTimePeriod(LocalDateTime start, LocalDateTime end) {
+        if (start.isAfter(end)) throw new CustomException(ErrorCode.INVALID_SCHEDULE_TIME);
     }
 
 

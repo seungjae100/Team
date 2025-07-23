@@ -1,8 +1,7 @@
-package com.web.team.employee;
+package com.web.team.employee.service;
 
 import com.web.team.employee.dto.EmployeeAdminResponse;
 import com.web.team.employee.dto.EmployeeUserResponse;
-import com.web.team.employee.service.EmployeeServiceImpl;
 import com.web.team.jwt.CustomUserDetails;
 import com.web.team.user.domain.Position;
 import com.web.team.user.domain.Role;

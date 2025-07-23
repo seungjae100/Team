@@ -11,8 +11,11 @@ public enum ErrorCode {
     DUPLICATE_EMAIL("이미 사용중인 이메일입니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_BOARD_TITLE("이미 존재하는 제목입니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_ADMIN_USERNAME("이미 사용중인 아이디입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_SCHEDULE_TIME("시작일은 종료일보다 빠를 수 없습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_ADMIN("유효하지 않은 관리자입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_USER("유효하지 않은 직원입니다.", HttpStatus.BAD_REQUEST),
 
-    // 400 UNAUTHORIZED
+    // 401 UNAUTHORIZED
     UNAUTHORIZED_ACCESS("인증이 필요합니다.", HttpStatus.UNAUTHORIZED),
     LOGIN_REQUIRED("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
     INVALID_PASSWORD("비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
