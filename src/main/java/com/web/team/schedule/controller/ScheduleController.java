@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,7 +36,7 @@ public class ScheduleController {
     })
     @PostMapping("/company")
     public ResponseEntity<Void> createAdminSchedule(
-            @RequestBody ScheduleCreateRequest request,
+            @Valid @RequestBody ScheduleCreateRequest request,
             @AuthenticationPrincipal CustomAdminDetails adminDetails
     ) {
         scheduleService.createAdminSchedule(request, adminDetails.getAdmin());
@@ -82,7 +83,7 @@ public class ScheduleController {
     })
     @PostMapping("/employee")
     public ResponseEntity<Void> createEmployeeSchedule(
-            @RequestBody ScheduleCreateRequest request,
+            @Valid @RequestBody ScheduleCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         scheduleService.createEmployeeSchedule(request, userDetails.getUser());

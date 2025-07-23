@@ -1,6 +1,5 @@
-package com.web.team.employee;
+package com.web.team.employee.service;
 
-import com.web.team.employee.service.EmployeeServiceImpl;
 import com.web.team.exception.CustomException;
 import com.web.team.exception.ErrorCode;
 import com.web.team.user.domain.Position;
