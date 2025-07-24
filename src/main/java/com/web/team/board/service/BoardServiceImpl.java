@@ -60,12 +60,10 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException(ErrorCode.NO_PERMISSION);
         }
 
-        // 중복된 제목을 작성할 때
-        if (request.getTitle() != null &&
-            !request.getTitle().equals(board.getTitle()) &&
-            boardRepository.existsByTitle(request.getTitle())) {
-            throw new CustomException(ErrorCode.DUPLICATE_BOARD_TITLE);
-        }
+        if (request.getTitle() != null && !request.getTitle().equals(board.getTitle()) &&
+        boardRepository.existsByTitleAndUuidNot(request.getTitle(), uuid)) {
+        throw new CustomException(ErrorCode.DUPLICATE_BOARD_TITLE);
+}
 
         // 제목, 내용 변경 (null 인 필드는 유지)
         board.update(request.getTitle(), request.getContent());
@@ -142,4 +140,5 @@ public class BoardServiceImpl implements BoardService {
             throw new RuntimeException("파일을 읽을 수 없습니다.", e);
         }
     }
+    
 }

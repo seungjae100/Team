@@ -14,10 +14,17 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     // 중복된 게시판 제목 불가한 메서드
     boolean existsByTitle(String title);
 
+    // 자기 자신을 제외한 중복 제목 확인
+    boolean existsByTitleAndUuidNot(String title, String uuid);
+
     // 내부값 보안
     Optional<Board> findByUuid(String uuid);
 
     // 모든 게시판의 상태를 구분
     List<Board> findAllByBoardStatus(BoardStatus status);
+
+
+
+    
 
 }
