@@ -25,7 +25,7 @@ import java.util.List;
 @Transactional
 public class BoardServiceImpl implements BoardService {
 
-    private BoardRepository boardRepository;
+    private final BoardRepository boardRepository;
 
     @Override
     public Board create(BoardCreateRequest request, Admin admin) {
@@ -59,7 +59,7 @@ public class BoardServiceImpl implements BoardService {
 
 
     @Override
-    public void update(String uuid, BoardUpdateRequest request, List<MultipartFile> files, Admin admin) {
+    public void update(String uuid, BoardUpdateRequest request, Admin admin) {
 
         Board board = boardRepository.findByUuid(uuid)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
@@ -80,19 +80,22 @@ public class BoardServiceImpl implements BoardService {
         if (request.getStatus() != null) {
             board.changeStatus(request.getStatus());
         }
+    }
 
-        // 새로운 이미지를 등록한 경우에만 수정 , null이면 기존 파일 유지
-        if (files != null && !files.isEmpty()) {
-            List<BoardImage> newImages = files.stream()
-                    .map(file -> BoardImage.of(
-                            file.getOriginalFilename(),
-                            file.getContentType(),
-                            getBytes(file)
-                    ))
-                    .toList();
+    @Override
+    public void updateImages(String uuid, List<MultipartFile> images, Admin admin) {
+        Board board = boardRepository.findByUuid(uuid)
+            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
-            board.replaceImages(newImages);
+        if (!board.isWriter(admin)) {
+            throw new CustomException(ErrorCode.NO_PERMISSION);
         }
+
+        List<BoardImage> newImages = images.stream()
+            .map(file -> BoardImage.of(file.getOriginalFilename(), file.getContentType(),getBytes(file)))
+            .toList();
+
+        board.replaceImages(newImages);
     }
 
     @Override

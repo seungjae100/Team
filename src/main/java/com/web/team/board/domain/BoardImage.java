@@ -20,6 +20,7 @@ public class BoardImage {
     private String contentType;
 
     @Lob
+    @Column(columnDefinition = "LONGBLOB", nullable = false)
     private byte[] data;
 
     @ManyToOne(fetch = FetchType.LAZY)

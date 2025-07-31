@@ -19,7 +19,10 @@ public interface BoardService {
     void uploadImages(String uuid, List<MultipartFile> images, Admin admin);
 
     // 공지사항 수정 메서드
-    void update(String uuid, BoardUpdateRequest request, List<MultipartFile> images, Admin admin);
+    void update(String uuid, BoardUpdateRequest request, Admin admin);
+
+    // 공지사항 이미지 수정 메서드
+    void updateImages(String uuid, List<MultipartFile> images, Admin admin);
 
     // 공지사항 목록 조회 메서드
     List<BoardListResponse> getAllBoards(boolean isAdmin);

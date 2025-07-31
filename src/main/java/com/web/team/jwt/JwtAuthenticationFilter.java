@@ -20,7 +20,6 @@ import com.web.team.user.repository.UserRepository;
 
 import java.io.IOException;
 
-
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
