@@ -12,11 +12,11 @@ import com.web.team.jwt.CustomAdminDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@SecurityRequirement(name = "accessToken")
 @RequestMapping("/api/board")
-@Tag(name = "회사 공지사항 게시판 API", description = "회사 공지사항 관련 API 입니다.")
+@Tag(name = "공지사항 게시판 API", description = "회사 공지사항 관련 API 입니다.")
 @RequiredArgsConstructor
 public class BoardController {
 
@@ -40,20 +41,28 @@ public class BoardController {
             @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
     })
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @RequestMapping("/create")
+    @PostMapping("/create")
     public ResponseEntity<?> createBoard(
-            @RequestPart("board") @Valid BoardCreateRequest request,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestBody @Valid BoardCreateRequest request,
             @AuthenticationPrincipal CustomAdminDetails adminDetails
     ) {
-        Board board = boardService.create(request, images, adminDetails.getAdmin());
+        Board board = boardService.create(request, adminDetails.getAdmin());
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of(
                        "message", "게시글 등록 완료",
                        "uuid", board.getUuid()
                 )
         );
+    }
+
+    @PostMapping("/{uuid}/images")
+    public ResponseEntity<?> uploadImages(
+        @PathVariable String uuid,
+        @RequestPart("images") List<MultipartFile> images,
+        @AuthenticationPrincipal CustomAdminDetails adminDetails
+    ) {
+        boardService.uploadImages(uuid, images, adminDetails.getAdmin());
+        return ResponseEntity.ok("이미지 업로드 완료");
     }
 
     @Operation(summary = "공지사항 수정", description = "관리자가 공지사항을 수정합니다.")
@@ -124,7 +133,7 @@ public class BoardController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
     })
     // 게시글 삭제
-    @DeleteMapping("{/uuid}")
+    @DeleteMapping("/{uuid}")
     public ResponseEntity<?> deleteBoard(
             @PathVariable String uuid,
             @AuthenticationPrincipal CustomAdminDetails adminDetails

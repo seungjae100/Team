@@ -10,6 +10,7 @@ import com.web.team.schedule.service.ScheduleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@SecurityRequirement(name = "accessToken")
 @RequiredArgsConstructor
 @Tag(name = "일정 API", description = "일정 (Schedule) 관련 API 입니다.")
 @RequestMapping("/api/schedules")
@@ -65,7 +67,7 @@ public class ScheduleController {
             @ApiResponse(responseCode = "404", ref = "#/components/responses/NotFound"),
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
     })
-    @GetMapping("/companyAdmin/{scheduleId}")
+    @GetMapping("/company/{scheduleId}")
     public ResponseEntity<ScheduleResponse> getScheduleForAdmin(
             @PathVariable Long scheduleId,
             @AuthenticationPrincipal CustomAdminDetails adminDetails
@@ -147,7 +149,7 @@ public class ScheduleController {
             @ApiResponse(responseCode = "404", ref = "#/components/responses/NotFound"),
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
     })
-    @PatchMapping("/companyAdmin/{scheduleId}")
+    @PatchMapping("/company/{scheduleId}")
     public ResponseEntity<Void> updateAdminSchedule(
             @PathVariable Long scheduleId,
             @RequestBody ScheduleUpdateRequest request,
@@ -180,7 +182,7 @@ public class ScheduleController {
             @ApiResponse(responseCode = "404", ref = "#/components/responses/NotFound"),
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
     })
-    @DeleteMapping("/companyAdmin/{scheduleId}")
+    @DeleteMapping("/company/{scheduleId}")
     public ResponseEntity<Void> deleteEmployeeSchedule(
             @PathVariable Long scheduleId,
             @AuthenticationPrincipal CustomAdminDetails adminDetails

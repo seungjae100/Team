@@ -28,27 +28,35 @@ public class BoardServiceImpl implements BoardService {
     private BoardRepository boardRepository;
 
     @Override
-    public Board create(BoardCreateRequest request, List<MultipartFile> files, Admin admin) {
+    public Board create(BoardCreateRequest request, Admin admin) {
         if (boardRepository.existsByTitle(request.getTitle())) {
             throw new CustomException(ErrorCode.DUPLICATE_BOARD_TITLE);
         }
 
-        List<BoardImage> imageEntities = new ArrayList<>();
-        if(files != null) {
-            for (MultipartFile file : files) {
-                validateImage(file);
-                BoardImage image = BoardImage.of(
-                        file.getOriginalFilename(),
-                        file.getContentType(),
-                        getBytes(file)
-                );
-                imageEntities.add(image);
-            }
-        }
-
-        Board board = Board.create(request.getTitle(), request.getContent(), admin, imageEntities);
+        Board board = Board.create(request.getTitle(), request.getContent(), admin, new ArrayList<>());
         return boardRepository.save(board);
     }
+
+    @Override
+    public void uploadImages(String uuid, List<MultipartFile> files, Admin admin) {
+        Board board = boardRepository.findByUuid(uuid)
+            .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+            if (!board.getWriter().getId().equals(admin.getId())) {
+                throw new CustomException(ErrorCode.NO_PERMISSION);
+            }
+
+            List<BoardImage> imageEntities = files.stream()
+                .map(file -> {
+                    validateImage(file);
+                    return BoardImage.of(file.getOriginalFilename(), file.getContentType(), getBytes(file));
+                })
+                .toList();
+                
+        board.replaceImages(imageEntities);
+
+    }
+
 
     @Override
     public void update(String uuid, BoardUpdateRequest request, List<MultipartFile> files, Admin admin) {

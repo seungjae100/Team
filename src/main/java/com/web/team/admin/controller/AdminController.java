@@ -9,6 +9,7 @@ import com.web.team.jwt.CustomAdminDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,9 +21,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@SecurityRequirement(name = "accessToken")
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
-@Tag(name = "관리자 CRUD 관려 API")
+@Tag(name = "관리자 API", description = "관리자 CRUD")
 public class AdminController {
 
     private final AdminService adminService;
@@ -48,12 +50,12 @@ public class AdminController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
     })
     @PostMapping("/login")
-    public ResponseEntity<String> adminLogin(@RequestBody AdminLoginRequest request,
+    public ResponseEntity<AdminLoginResponse> adminLogin(@RequestBody AdminLoginRequest request,
                                                          HttpServletResponse response) {
         AdminLoginResponse loginResponse = adminService.adminLogin(request);
 
         CookieUtils.setCookie(response, "accessToken", loginResponse.accessToken(), 60 * 60 * 12);
-        return ResponseEntity.ok("관리자 로그인 성공");
+        return ResponseEntity.ok(loginResponse);
     }
 
     @Operation(summary = "관리자 로그아웃에 대한 API", description = "관리자 로그아웃을 진행한다.")

@@ -30,7 +30,7 @@ public class UserService {
         User user = userLoginCheck(request);
 
         // 토큰 발급(AccessToken) + RefreshToken 저장
-        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole().name());
+        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail(), user.getRole().name());
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
         tokenService.storeRefreshToken(user.getId(), refreshToken);

@@ -4,14 +4,11 @@ import com.web.team.chat.dto.ChatMessageRequest;
 import com.web.team.chat.dto.ChatMessageResponse;
 import com.web.team.chat.dto.MessageLoadRequest;
 import com.web.team.chat.service.ChatMessageService;
-import com.web.team.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;

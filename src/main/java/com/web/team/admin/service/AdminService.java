@@ -53,7 +53,7 @@ public class AdminService {
         Admin admin = adminLoginCheck(request);
 
         // 토큰 발급
-        String accessToken = jwtTokenProvider.createAccessToken(admin.getId(), admin.getRole().name());
+        String accessToken = jwtTokenProvider.createAccessToken(admin.getUsername(), admin.getRole().name());
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
         tokenService.storeRefreshToken(admin.getId(), refreshToken);

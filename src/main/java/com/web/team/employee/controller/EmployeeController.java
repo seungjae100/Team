@@ -7,17 +7,18 @@ import com.web.team.user.dto.UserUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@SecurityRequirement(name = "accessToken")
 @RequiredArgsConstructor
-@Tag(name = "직원 계정 관련 API", description = "관리자가 직원을 관리하는 API 입니다.")
+@Tag(name = "직원 계정 API", description = "관리자가 직원을 관리하는 API 입니다.")
 @RequestMapping("/api/employees")
 public class EmployeeController {
 
@@ -58,12 +59,11 @@ public class EmployeeController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> getAllEmployees(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(employeeService.getAllEmployees(userDetails));
     }
 
-    @Operation(summary = "직원 개인 조회", description = "관리자는 모든 직원 조회가 가능하다.")
+    @Operation(summary = "직원 개인 조회", description = "관리자는 전체, 일반 직원은 활성화된 직원만 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "직원 정보 조회 성공"),
             @ApiResponse(responseCode = "403", ref = "#/components/response/Forbidden"),
@@ -71,7 +71,6 @@ public class EmployeeController {
             @ApiResponse(responseCode = "500", ref = "#/components/response/InternalServerError")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hashAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> getEmployeeById(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails userDetails

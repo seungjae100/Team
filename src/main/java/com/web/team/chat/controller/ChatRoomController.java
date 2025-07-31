@@ -8,12 +8,14 @@ import com.web.team.jwt.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@SecurityRequirement(name = "accessToken")
 @RequestMapping("/api/chat/rooms")
 @RequiredArgsConstructor
 @Tag(name = "채팅방 API", description = "채팅방 생성, 입장, 퇴장 관련 API 입니다.")

@@ -27,8 +27,8 @@ public class JwtTokenProvider {
     }
 
     // AccessToken 생성
-    public String createAccessToken(Long userId, String role) {
-        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
+    public String createAccessToken(String loginId, String role) {
+        Claims claims = Jwts.claims().setSubject(loginId);
         claims.put("role", "ROLE_" + role);
 
         Date now = new Date();

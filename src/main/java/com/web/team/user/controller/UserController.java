@@ -9,6 +9,7 @@ import com.web.team.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,9 +20,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@SecurityRequirement(name = "accessToken")
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
-@Tag(name = "직원 CRUD에 관련된 API")
+@Tag(name = "직원 API", description = "직원 CRUD입니다.")
 public class UserController {
 
     private final UserService userService;
@@ -34,11 +36,11 @@ public class UserController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
     })
     @PostMapping("/login")
-    public ResponseEntity<String> userLogin(@RequestBody UserLoginRequest request,
+    public ResponseEntity<UserLoginResponse> userLogin(@RequestBody UserLoginRequest request,
                                             HttpServletResponse response) {
         UserLoginResponse loginResponse = userService.userLogin(request);
         CookieUtils.setCookie(response, "accessToken", loginResponse.accessToken(), 60 * 60 * 12);
-        return ResponseEntity.ok("로그인 성공");
+        return ResponseEntity.ok(loginResponse);
     }
 
     @Operation(summary = "직원의 로그아웃에 대한 API", description = "직원의 로그아웃을 진행한다.")
