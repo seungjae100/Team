@@ -74,9 +74,9 @@ public class JwtTokenProvider {
         }
     }
 
-    // 토큰에서 userId 추출 (Subject)
-    public Long getUserId(String token) {
-        return Long.parseLong(getClaims(token).getSubject());
+    // 토큰에서 getLoginId 추출 (Subject)
+    public String getLoginId(String token) {
+        return getClaims(token).getSubject();
     }
 
     // 토큰에서 role 추출

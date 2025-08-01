@@ -57,18 +57,15 @@ public class UserService {
 
     // 직원의 비밀번호 변경
     @Transactional
-    public void changePassword(Long userId, PasswordChangeRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
+    public void changePassword(User user, PasswordChangeRequest request) {
         user.changePassword(passwordEncoder.encode(request.getPassword()));
     }
 
     // 직원의 로그아웃
     @Transactional
     public void userLogout(CustomUserDetails userDetails) {
-        Long userId = userDetails.getUserId();
-        tokenService.deletedRefreshToken(userId);
+        userDetails.getUser();
+        tokenService.deletedRefreshToken(userD);
     }
 
     // 직원 AccessToken 재발급

@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 @AllArgsConstructor
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails, BasePrincipal {
 
     private final User user;
 
@@ -19,12 +19,13 @@ public class CustomUserDetails implements UserDetails {
         return user;
     }
 
-    public Long getUserId() {
-        return user.getId();
-    }
-
     public Role getRole() {
         return user.getRole();
+    }    
+
+    @Override
+    public String getLoginId() {
+        return user.getEmail();
     }
 
     @Override

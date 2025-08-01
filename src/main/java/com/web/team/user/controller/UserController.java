@@ -71,7 +71,7 @@ public class UserController {
     })
     @PatchMapping("/password")
     public ResponseEntity<String> userChangePassword(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody PasswordChangeRequest request) {
-        userService.changePassword(userDetails.getUserId(), request);
+        userService.changePassword(userDetails.getUser(), request);
         return ResponseEntity.ok("비밀번호가 변경되었습니다.");
     }
 
