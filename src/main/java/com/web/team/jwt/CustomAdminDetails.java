@@ -1,6 +1,8 @@
 package com.web.team.jwt;
 
 import com.web.team.admin.domain.Admin;
+import com.web.team.user.domain.Role;
+
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,15 +12,21 @@ import java.util.Collection;
 import java.util.List;
 
 @AllArgsConstructor
-public class CustomAdminDetails implements UserDetails {
+public class CustomAdminDetails implements UserDetails, BasePrincipal {
 
     private final Admin admin;
 
-    public Long getAdminId() {
-        return admin.getId();
+    @Override
+    public Role getRole() {
+        return admin.getRole();
     }
 
-    public Admin getAdmin() {
+    @Override
+    public String getLoginId() {
+        return admin.getUsername();
+    }
+
+     public Admin getAdmin() {
         return admin;
     }
 

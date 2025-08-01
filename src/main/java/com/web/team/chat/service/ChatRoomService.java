@@ -51,6 +51,9 @@ public class ChatRoomService {
         newRoom.addParticipant(p1);
         newRoom.addParticipant(p2);
 
+        newRoom.increaseUserCount();
+        newRoom.increaseUserCount();
+
         chatRoomRepository.save(newRoom);
         return ChatRoomResponse.from(newRoom);
     }
@@ -66,10 +69,13 @@ public class ChatRoomService {
         }
 
         ChatRoom newRoom = ChatRoom.create(roomName, RoomType.GROUP);
+
+
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new IllegalArgumentException("생성자 유저 정보를 찾을 수 없습니다."));
         ChatParticipant creatorParticipant = ChatParticipant.enter(newRoom, creator);
         newRoom.addParticipant(creatorParticipant);
+        newRoom.increaseUserCount();
 
         for (Long userId : request.getUserIds()) {
             if (userId.equals(creatorId)) continue; // 본인은 참여
@@ -77,6 +83,7 @@ public class ChatRoomService {
                     .orElseThrow(() -> new IllegalArgumentException("초대할 유저 정보를 찾을 수 없습니다."));
             ChatParticipant participant = ChatParticipant.enter(newRoom, invitee);
             newRoom.addParticipant(participant);
+            newRoom.increaseUserCount();
         }
 
         chatRoomRepository.save(newRoom);
@@ -97,11 +104,13 @@ public class ChatRoomService {
         Optional<ChatParticipant> existing = chatParticipantRepository.findByRoomIdAndUserId(roomId, userId);
         if (existing.isPresent()) {
             existing.get().reEnter(); // 재입장 처리
+            room.increaseUserCount();
         } else {
             ChatParticipant participant = ChatParticipant.enter(room, user);
             room.addParticipant(participant);
+            room.increaseUserCount();
         }
-        room.increaseUserCount();
+        
     }
 
     // 채팅방 나가기

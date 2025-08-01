@@ -10,6 +10,7 @@ import com.web.team.schedule.service.ScheduleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@SecurityRequirement(name = "accessToken")
 @RequiredArgsConstructor
 @Tag(name = "일정 API", description = "일정 (Schedule) 관련 API 입니다.")
 @RequestMapping("/api/schedules")
@@ -65,9 +67,9 @@ public class ScheduleController {
             @ApiResponse(responseCode = "404", ref = "#/components/responses/NotFound"),
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
     })
-    @GetMapping("/companyAdmin/{scheduleId}")
+    @GetMapping("/company/{scheduleId}")
     public ResponseEntity<ScheduleResponse> getScheduleForAdmin(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @AuthenticationPrincipal CustomAdminDetails adminDetails
     ) {
         ScheduleResponse response = scheduleService.getScheduleForAdmin(scheduleId, adminDetails.getAdmin());
@@ -114,7 +116,7 @@ public class ScheduleController {
     })
     @GetMapping("/employee/{scheduleId}")
     public ResponseEntity<ScheduleResponse> getScheduleForEmployee(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         ScheduleResponse response = scheduleService.getScheduleForEmployee(scheduleId, userDetails.getUser());
@@ -131,7 +133,7 @@ public class ScheduleController {
     })
     @PatchMapping("/employee/{scheduleId}")
     public ResponseEntity<Void> updateEmployeeSchedule(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @RequestBody ScheduleUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -147,9 +149,9 @@ public class ScheduleController {
             @ApiResponse(responseCode = "404", ref = "#/components/responses/NotFound"),
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
     })
-    @PatchMapping("/companyAdmin/{scheduleId}")
+    @PatchMapping("/company/{scheduleId}")
     public ResponseEntity<Void> updateAdminSchedule(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @RequestBody ScheduleUpdateRequest request,
             @AuthenticationPrincipal CustomAdminDetails adminDetails
     ) {
@@ -166,7 +168,7 @@ public class ScheduleController {
     })
     @DeleteMapping("/employee/{scheduleId}")
     public ResponseEntity<Void> deleteEmployeeSchedule(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         scheduleService.deleteEmployeeSchedule(scheduleId, userDetails.getUser());
@@ -180,9 +182,9 @@ public class ScheduleController {
             @ApiResponse(responseCode = "404", ref = "#/components/responses/NotFound"),
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
     })
-    @DeleteMapping("/companyAdmin/{scheduleId}")
+    @DeleteMapping("/company/{scheduleId}")
     public ResponseEntity<Void> deleteEmployeeSchedule(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @AuthenticationPrincipal CustomAdminDetails adminDetails
     ) {
         scheduleService.deleteAdminSchedule(scheduleId, adminDetails.getAdmin());

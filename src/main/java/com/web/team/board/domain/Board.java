@@ -83,5 +83,10 @@ public class Board {
         this.boardStatus = status;
     }
 
+    // 작성한 관리자가 본인인지 확인
+    public boolean isWriter(Admin admin) {
+        return this.writer != null && this.writer.getId().equals(admin.getId());
+    }
+
 
 }

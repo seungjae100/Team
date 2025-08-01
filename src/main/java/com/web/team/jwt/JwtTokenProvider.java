@@ -27,8 +27,8 @@ public class JwtTokenProvider {
     }
 
     // AccessToken 생성
-    public String createAccessToken(Long userId, String role) {
-        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
+    public String createAccessToken(String loginId, String role) {
+        Claims claims = Jwts.claims().setSubject(loginId);
         claims.put("role", "ROLE_" + role);
 
         Date now = new Date();
@@ -74,9 +74,9 @@ public class JwtTokenProvider {
         }
     }
 
-    // 토큰에서 userId 추출 (Subject)
-    public Long getUserId(String token) {
-        return Long.parseLong(getClaims(token).getSubject());
+    // 토큰에서 getLoginId 추출 (Subject)
+    public String getLoginId(String token) {
+        return getClaims(token).getSubject();
     }
 
     // 토큰에서 role 추출

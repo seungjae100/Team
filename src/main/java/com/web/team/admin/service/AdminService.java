@@ -53,10 +53,10 @@ public class AdminService {
         Admin admin = adminLoginCheck(request);
 
         // 토큰 발급
-        String accessToken = jwtTokenProvider.createAccessToken(admin.getId(), admin.getRole().name());
+        String accessToken = jwtTokenProvider.createAccessToken(admin.getUsername(), admin.getRole().name());
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
-        tokenService.storeRefreshToken(admin.getId(), refreshToken);
+        tokenService.storeRefreshToken(admin.getUsername(), refreshToken);
 
         return new AdminLoginResponse(accessToken);
     }
@@ -78,8 +78,8 @@ public class AdminService {
     // 관리자 로그아웃
     @Transactional
     public void adminLogout(CustomAdminDetails adminDetails) {
-        Long adminId = adminDetails.getAdminId();
-        tokenService.deletedRefreshToken(adminId);
+        String loginId = adminDetails.getUsername();
+        tokenService.deletedRefreshToken(loginId);
     }
 
     // 관리자 AccessToken 재발급

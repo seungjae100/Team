@@ -17,20 +17,20 @@ public class TokenService {
     private final JwtTokenProvider jwtTokenProvider;
 
     // RefreshToken 생성 유효기간 7일
-    public void storeRefreshToken(Long userId, String refreshToken) {
-        String key = REFRESH_TOKEN_PREFIX + userId;
+    public void storeRefreshToken(String loginId, String refreshToken) {
+        String key = REFRESH_TOKEN_PREFIX + loginId;
         redisTemplate.opsForValue().set(key, refreshToken, Duration.ofDays(7));
     }
 
     // RefreshToken 조회
-    public String getStoredRefreshToken(Long userId) {
-        String key = REFRESH_TOKEN_PREFIX + userId;
+    public String getStoredRefreshToken(String loginId) {
+        String key = REFRESH_TOKEN_PREFIX + loginId;
         return redisTemplate.opsForValue().get(key);
     }
 
     // RefreshToken 삭제
-    public void deletedRefreshToken(Long userId) {
-        String key = REFRESH_TOKEN_PREFIX + userId;
+    public void deletedRefreshToken(String loginId) {
+        String key = REFRESH_TOKEN_PREFIX + loginId;
         redisTemplate.delete(key);
     }
 
@@ -42,18 +42,18 @@ public class TokenService {
             throw new RuntimeException("AccessToken이 아직 만료되지 않았습니다.");
         }
 
-        // 2. 만료된 토큰에서 userId 추출
-        Long userId = jwtTokenProvider.getUserId(expiredAccessToken);
+        // 2. 만료된 토큰에서 loginId 추출
+        String loginId = jwtTokenProvider.getLoginId(expiredAccessToken);
 
-        // 3. Redis 에서 userId 기반으로 저장된 RefreshToken 조회
-        String storedRefreshToken = getStoredRefreshToken(userId);
+        // 3. Redis 에서 loginId 기반으로 저장된 RefreshToken 조회
+        String storedRefreshToken = getStoredRefreshToken(loginId);
         if (storedRefreshToken == null) {
             throw new RuntimeException("RefreshToken이 존재하지 않습니다. 다시 로그인하세요");
         }
 
         // 4. 새 AccessToken 발급 및 쿠키로 전환
         String role = jwtTokenProvider.getRole(expiredAccessToken);
-        String newAccessToken = jwtTokenProvider.createAccessToken(userId, role);
+        String newAccessToken = jwtTokenProvider.createAccessToken(loginId, role);
 
         // 쿠키로 응답에 심기
         CookieUtils.setCookie(response, "accessToken", newAccessToken, 60 * 30);

@@ -10,8 +10,11 @@ import com.web.team.schedule.dto.ScheduleResponse;
 import com.web.team.schedule.dto.ScheduleUpdateRequest;
 import com.web.team.schedule.repository.ScheduleRepository;
 import com.web.team.user.domain.User;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +25,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final ScheduleRepository scheduleRepository;
 
     // 관리자가 회사 일정을 등록
+    @Transactional
     @Override
     public void createAdminSchedule(ScheduleCreateRequest request, Admin admin) {
         Schedule schedule = Schedule.create(
@@ -31,6 +35,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     // 직원이 개인 일정을 등록
+    @Transactional
     @Override
     public void createEmployeeSchedule(ScheduleCreateRequest request, User user) {
         Schedule schedule = Schedule.create(
@@ -39,6 +44,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         scheduleRepository.save(schedule);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ScheduleCalendarResponse> getSchedulesByEmployee(User user) {
         return scheduleRepository.findAllForEmployee(user).stream()
@@ -46,6 +52,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ScheduleCalendarResponse> getSchedulesByAdmin(Admin admin) {
         return scheduleRepository.findAllForAdmin(admin).stream()
@@ -53,6 +60,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ScheduleResponse getScheduleForEmployee(Long scheduleId, User user) {
         Schedule schedule = scheduleRepository.findByIdForEmployee(scheduleId, user)
@@ -60,6 +68,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         return ScheduleResponse.from(schedule);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ScheduleResponse getScheduleForAdmin(Long scheduleId, Admin admin) {
         Schedule schedule = scheduleRepository.findByIdForAdmin(scheduleId, admin)
@@ -67,12 +76,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         return ScheduleResponse.from(schedule);
     }
 
+    @Transactional
     @Override
     public void updateEmployeeSchedule(Long scheduleId, User user, ScheduleUpdateRequest request) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
+        Schedule schedule = scheduleRepository.findByIdForEmployee(scheduleId, user)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        schedule.validateOwner(user);
+        schedule.validateUserOwner(user);
 
         schedule.update(
                 request.title(),
@@ -83,12 +93,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         );
     }
 
+    @Transactional
     @Override
     public void updateAdminSchedule(Long scheduleId, Admin admin, ScheduleUpdateRequest request) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
+        Schedule schedule = scheduleRepository.findByIdForAdmin(scheduleId, admin)
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_PERMISSION));
 
-        schedule.validateOwner(admin);
+        schedule.validateAdminOwner(admin);
 
         schedule.update(
                 request.title(),
@@ -99,22 +110,24 @@ public class ScheduleServiceImpl implements ScheduleService {
         );
     }
 
+    @Transactional
     @Override
     public void deleteAdminSchedule(Long scheduleId, Admin admin) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
+        Schedule schedule = scheduleRepository.findByIdForAdmin(scheduleId, admin)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        schedule.validateOwner(admin);
+        schedule.validateAdminOwner(admin);
 
         scheduleRepository.delete(schedule);
     }
 
+    @Transactional
     @Override
     public void deleteEmployeeSchedule(Long scheduleId, User user) {
-        Schedule schedule = scheduleRepository.findById(scheduleId)
+        Schedule schedule = scheduleRepository.findByIdForEmployee(scheduleId, user)
                 .orElseThrow(() -> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        schedule.validateOwner(user);
+        schedule.validateUserOwner(user);
 
         scheduleRepository.delete(schedule);
     }

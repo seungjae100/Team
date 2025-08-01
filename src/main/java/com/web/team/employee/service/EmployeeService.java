@@ -1,17 +1,17 @@
 package com.web.team.employee.service;
 
-import com.web.team.jwt.CustomUserDetails;
+import com.web.team.jwt.BasePrincipal;
 import com.web.team.user.dto.UserRegisterRequest;
 import com.web.team.user.dto.UserUpdateRequest;
 
 public interface EmployeeService {
 
-    Object getAllEmployees(CustomUserDetails userDetails);
+    Object getAllEmployees(BasePrincipal principal);
 
     void registerEmployee(UserRegisterRequest request);
 
-    void updateEmployee(Long userId, UserUpdateRequest request);
+    void updateEmployee(Long id, BasePrincipal principal, UserUpdateRequest request);
 
-    Object getEmployeeById(Long id, CustomUserDetails userDetails);
+    Object getEmployeeById(Long id, BasePrincipal principal);
 
 }

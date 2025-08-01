@@ -2,7 +2,7 @@ package com.web.team.user.service;
 
 import com.web.team.exception.CustomException;
 import com.web.team.exception.ErrorCode;
-import com.web.team.jwt.CustomUserDetails;
+import com.web.team.jwt.BasePrincipal;
 import com.web.team.user.domain.User;
 import com.web.team.user.dto.*;
 import com.web.team.jwt.JwtTokenProvider;
@@ -30,10 +30,10 @@ public class UserService {
         User user = userLoginCheck(request);
 
         // 토큰 발급(AccessToken) + RefreshToken 저장
-        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole().name());
+        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail(), user.getRole().name());
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
-        tokenService.storeRefreshToken(user.getId(), refreshToken);
+        tokenService.storeRefreshToken(user.getEmail(), refreshToken);
 
         return new UserLoginResponse(accessToken);
     }
@@ -57,18 +57,20 @@ public class UserService {
 
     // 직원의 비밀번호 변경
     @Transactional
-    public void changePassword(Long userId, PasswordChangeRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    public void changePassword(User user, PasswordChangeRequest request) {
 
-        user.changePassword(passwordEncoder.encode(request.getPassword()));
+        // 영속상태 보장
+        User updateUser = userRepository.findActiveUserByEmail(user.getEmail())
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        updateUser.changePassword(passwordEncoder.encode(request.getPassword()));
     }
 
     // 직원의 로그아웃
     @Transactional
-    public void userLogout(CustomUserDetails userDetails) {
-        Long userId = userDetails.getUserId();
-        tokenService.deletedRefreshToken(userId);
+    public void userLogout(BasePrincipal principal) {
+
+        tokenService.deletedRefreshToken(principal.getLoginId());
     }
 
     // 직원 AccessToken 재발급

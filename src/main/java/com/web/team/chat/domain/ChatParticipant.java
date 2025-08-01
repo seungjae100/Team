@@ -32,6 +32,8 @@ public class ChatParticipant {
         ChatParticipant p = new ChatParticipant();
         chatRoom.addParticipant(p);
         user.addParticipant(p);
+        p.chatRoom = chatRoom;
+        p.user = user;
         p.enteredAt = LocalDateTime.now();
         p.exited = false; // 초기값 : 나가지 않은 상태
         return p;
