@@ -79,10 +79,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/schedule/employee/*").hasRole("USER")
 
                         // 관리자 (ROLE_ADMIN)
-                        .requestMatchers("/api/admin/").hasRole("ADMIN")
+                        .requestMatchers("/api/admin").hasRole("ADMIN")
                                         
                         // 사원 (ROLE_USER)
-                        .requestMatchers("/api/user/").hasRole("USER")
+                        .requestMatchers("/api/user").hasRole("USER")
 
 
                     .anyRequest().authenticated()

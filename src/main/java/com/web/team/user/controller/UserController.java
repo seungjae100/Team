@@ -1,5 +1,6 @@
 package com.web.team.user.controller;
 
+import com.web.team.jwt.BasePrincipal;
 import com.web.team.jwt.CookieUtils;
 import com.web.team.jwt.CustomUserDetails;
 import com.web.team.user.dto.PasswordChangeRequest;
@@ -51,10 +52,10 @@ public class UserController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
     })
     @PostMapping("/logout")
-    public ResponseEntity<String> userLogout(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<String> userLogout(@AuthenticationPrincipal BasePrincipal principal,
                                              HttpServletResponse response) {
         // 1. Redis 에서 RefreshToken 삭제
-        userService.userLogout(userDetails);
+        userService.userLogout(principal);
 
         // 2. 쿠키삭제
         CookieUtils.deleteCookie(response,"accessToken");

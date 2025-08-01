@@ -6,7 +6,6 @@ import com.web.team.exception.ErrorCode;
 import com.web.team.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -103,14 +102,14 @@ public class Schedule {
         
     }
 
-    public void validateOwner(Admin admin) {
-        if (!this.admin.equals(admin)) {
+    public void validateAdminOwner(Admin admin) {
+        if (this.admin == null || admin == null || !this.admin.getId().equals(admin.getId())) {
             throw new CustomException(ErrorCode.SCHEDULE_FORBIDDEN);
         }
     }
 
-    public void validateOwner(User user) {
-        if (!this.user.equals(user)) {
+    public void validateUserOwner(User user) {
+        if (this.user == null || user == null || !this.user.getId().equals(user.getId())) {
             throw new CustomException(ErrorCode.SCHEDULE_FORBIDDEN);
         }
     }

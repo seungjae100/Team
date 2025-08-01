@@ -10,7 +10,7 @@ public interface EmployeeService {
 
     void registerEmployee(UserRegisterRequest request);
 
-    void updateEmployee(BasePrincipal principal, UserUpdateRequest request);
+    void updateEmployee(Long id, BasePrincipal principal, UserUpdateRequest request);
 
     Object getEmployeeById(Long id, BasePrincipal principal);
 

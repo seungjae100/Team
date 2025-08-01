@@ -21,7 +21,11 @@ public class CustomUserDetails implements UserDetails, BasePrincipal {
 
     public Role getRole() {
         return user.getRole();
-    }    
+    }
+    
+    public Long getUserId() {
+        return user.getId();
+    }
 
     @Override
     public String getLoginId() {

@@ -44,9 +44,12 @@ public class EmployeeController {
             @ApiResponse(responseCode = "403", ref = "#/components/responses/Forbidden"),
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
     })
-    @PatchMapping("/update")
-    public ResponseEntity<String> userUpdate(@AuthenticationPrincipal BasePrincipal principal, @RequestBody UserUpdateRequest request) {
-        employeeService.updateEmployee(principal, request);
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> userUpdate(
+        @PathVariable("id") Long id,
+        @AuthenticationPrincipal BasePrincipal principal, 
+        @RequestBody UserUpdateRequest request) {
+        employeeService.updateEmployee(id, principal, request);
         return ResponseEntity.ok("정보 수정 완료");
     }
 
@@ -72,7 +75,7 @@ public class EmployeeController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<?> getEmployeeById(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @AuthenticationPrincipal BasePrincipal principal
     ) {
         return ResponseEntity.ok(employeeService.getEmployeeById(id, principal));

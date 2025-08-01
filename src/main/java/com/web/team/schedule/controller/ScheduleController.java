@@ -69,7 +69,7 @@ public class ScheduleController {
     })
     @GetMapping("/company/{scheduleId}")
     public ResponseEntity<ScheduleResponse> getScheduleForAdmin(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @AuthenticationPrincipal CustomAdminDetails adminDetails
     ) {
         ScheduleResponse response = scheduleService.getScheduleForAdmin(scheduleId, adminDetails.getAdmin());
@@ -116,7 +116,7 @@ public class ScheduleController {
     })
     @GetMapping("/employee/{scheduleId}")
     public ResponseEntity<ScheduleResponse> getScheduleForEmployee(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         ScheduleResponse response = scheduleService.getScheduleForEmployee(scheduleId, userDetails.getUser());
@@ -133,7 +133,7 @@ public class ScheduleController {
     })
     @PatchMapping("/employee/{scheduleId}")
     public ResponseEntity<Void> updateEmployeeSchedule(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @RequestBody ScheduleUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -151,7 +151,7 @@ public class ScheduleController {
     })
     @PatchMapping("/company/{scheduleId}")
     public ResponseEntity<Void> updateAdminSchedule(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @RequestBody ScheduleUpdateRequest request,
             @AuthenticationPrincipal CustomAdminDetails adminDetails
     ) {
@@ -168,7 +168,7 @@ public class ScheduleController {
     })
     @DeleteMapping("/employee/{scheduleId}")
     public ResponseEntity<Void> deleteEmployeeSchedule(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         scheduleService.deleteEmployeeSchedule(scheduleId, userDetails.getUser());
@@ -184,7 +184,7 @@ public class ScheduleController {
     })
     @DeleteMapping("/company/{scheduleId}")
     public ResponseEntity<Void> deleteEmployeeSchedule(
-            @PathVariable Long scheduleId,
+            @PathVariable("scheduleId") Long scheduleId,
             @AuthenticationPrincipal CustomAdminDetails adminDetails
     ) {
         scheduleService.deleteAdminSchedule(scheduleId, adminDetails.getAdmin());

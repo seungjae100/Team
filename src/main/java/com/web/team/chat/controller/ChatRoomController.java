@@ -57,7 +57,7 @@ public class ChatRoomController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
     })
     @PostMapping("/{roomId}/enter")
-    public void enterRoom(@PathVariable Long roomId,
+    public void enterRoom(@PathVariable("roomId") Long roomId,
                           @AuthenticationPrincipal CustomUserDetails userDetails) {
         chatRoomService.enterRoom(roomId, userDetails);
     }
@@ -70,7 +70,7 @@ public class ChatRoomController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
     })
     @PostMapping("/{roomId}/exit")
-    public void exitRoom(@PathVariable Long roomId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public void exitRoom(@PathVariable("roomId") Long roomId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         chatRoomService.exitRoom(roomId, userDetails);
     }
 

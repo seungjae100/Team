@@ -42,11 +42,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public void updateEmployee(BasePrincipal principal, UserUpdateRequest request) {
-        User user = userRepository.findByEmail(principal.getLoginId())
+    public void updateEmployee(Long id, BasePrincipal principal, UserUpdateRequest request) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (request.getIsActive() != null && principal.getRole() != Role.ADMIN) {
+        if (principal.getRole() != Role.ADMIN && ! user.getEmail().equals(principal.getLoginId())) {
             throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
