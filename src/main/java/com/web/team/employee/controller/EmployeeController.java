@@ -1,7 +1,7 @@
 package com.web.team.employee.controller;
 
 import com.web.team.employee.service.EmployeeService;
-import com.web.team.jwt.CustomUserDetails;
+import com.web.team.jwt.BasePrincipal;
 import com.web.team.user.dto.UserRegisterRequest;
 import com.web.team.user.dto.UserUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,8 +45,8 @@ public class EmployeeController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError"),
     })
     @PatchMapping("/update")
-    public ResponseEntity<String> userUpdate(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UserUpdateRequest request) {
-        employeeService.updateEmployee(userDetails.getUserId(), request);
+    public ResponseEntity<String> userUpdate(@AuthenticationPrincipal BasePrincipal principal, @RequestBody UserUpdateRequest request) {
+        employeeService.updateEmployee(principal, request);
         return ResponseEntity.ok("정보 수정 완료");
     }
 
@@ -59,8 +59,8 @@ public class EmployeeController {
             @ApiResponse(responseCode = "500", ref = "#/components/responses/InternalServerError")
     })
     @GetMapping
-    public ResponseEntity<?> getAllEmployees(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(employeeService.getAllEmployees(userDetails));
+    public ResponseEntity<?> getAllEmployees(@AuthenticationPrincipal BasePrincipal principal) {
+        return ResponseEntity.ok(employeeService.getAllEmployees(principal));
     }
 
     @Operation(summary = "직원 개인 조회", description = "관리자는 전체, 일반 직원은 활성화된 직원만 조회합니다.")
@@ -73,9 +73,9 @@ public class EmployeeController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getEmployeeById(
             @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @AuthenticationPrincipal BasePrincipal principal
     ) {
-        return ResponseEntity.ok(employeeService.getEmployeeById(id, userDetails));
+        return ResponseEntity.ok(employeeService.getEmployeeById(id, principal));
     }
 
 }

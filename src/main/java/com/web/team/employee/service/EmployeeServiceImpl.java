@@ -4,7 +4,7 @@ import com.web.team.employee.dto.EmployeeAdminResponse;
 import com.web.team.employee.dto.EmployeeUserResponse;
 import com.web.team.exception.CustomException;
 import com.web.team.exception.ErrorCode;
-import com.web.team.jwt.CustomUserDetails;
+import com.web.team.jwt.BasePrincipal;
 import com.web.team.user.domain.Role;
 import com.web.team.user.domain.User;
 import com.web.team.user.dto.UserRegisterRequest;
@@ -24,20 +24,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional(readOnly = true)
-    @Override
-    public Object getAllEmployees(CustomUserDetails userDetails) {
-        Role role = userDetails.getRole();
-
-        List<User> users = (role == Role.ADMIN)
-                ? userRepository.findAll()
-                : userRepository.findByIsActiveTrue();
-
-        return (role == Role.ADMIN)
-                ? users.stream().map(EmployeeAdminResponse::from).toList()
-                : users.stream().map(EmployeeUserResponse::from).toList();
-    }
-
     @Transactional
     @Override
     public void registerEmployee(UserRegisterRequest request) {
@@ -56,11 +42,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional
     @Override
-    public void updateEmployee(Long userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId)
+    public void updateEmployee(BasePrincipal principal, UserUpdateRequest request) {
+        User user = userRepository.findByEmail(principal.getLoginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (request.getIsActive() != null && !user.getRole().equals(Role.ADMIN)) {
+        if (request.getIsActive() != null && principal.getRole() != Role.ADMIN) {
             throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
@@ -69,11 +55,24 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Transactional(readOnly = true)
     @Override
-    public Object getEmployeeById(Long userId, CustomUserDetails userDetails) {
+    public Object getAllEmployees(BasePrincipal principal) {
+    
+        List<User> users = (principal.getRole() == Role.ADMIN)
+                ? userRepository.findAll()
+                : userRepository.findByIsActiveTrue();
+
+        return (principal.getRole() == Role.ADMIN)
+                ? users.stream().map(EmployeeAdminResponse::from).toList()
+                : users.stream().map(EmployeeUserResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Object getEmployeeById(Long userId, BasePrincipal principal) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (userDetails.getRole() == Role.ADMIN) {
+        if (principal.getRole() == Role.ADMIN) {
             return EmployeeAdminResponse.from(user);
         }
 
