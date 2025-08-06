@@ -28,8 +28,8 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                         String token = cookie.getValue();
 
                         if (jwtTokenProvider.validateToken(token)) {
-                            Long userId = jwtTokenProvider.getUserId(token);
-                            attributes.put("userId", userId);
+                            String loginId = jwtTokenProvider.getLoginId(token);
+                            attributes.put("loginId", loginId);
                             return true;
                         }
                     }
